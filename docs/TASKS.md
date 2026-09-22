@@ -1,6 +1,10 @@
 # Implementation task plan
 
-All tasks below are planned, not completed by this documentation pass. IDs are references for future work. A task is complete when its behavior is implemented, reviewed, and covered by appropriate checks.
+TASK-003, the initial application shell, is complete. All other tasks below remain planned. IDs are references for future work. A task is complete when its behavior is implemented, reviewed, and covered by appropriate checks.
+
+| ID | Status | Deliverable |
+| --- | --- | --- |
+| TASK-003 | Complete | Responsive public shell and homepage; static Services, About, and Contact pages; public, data-free `/admin` visual shell and module placeholders; NexaService metadata. Authentication and server-side authorization must precede any protected dashboard functionality. |
 
 | ID | Phase and task | Depends on | Completion criteria |
 | --- | --- | --- | --- |

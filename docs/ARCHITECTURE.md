@@ -6,6 +6,7 @@ NexaService is one Next.js App Router full-stack application. React and Tailwind
 
 ## Public and private boundaries
 
+- **Current shell exception:** `/admin` is temporarily a public, non-sensitive visual placeholder. It contains no customer data, metrics, or administrative operations. Authentication and server-side authorization must be implemented before adding protected dashboard functionality. The private dashboard rules below describe the intended implementation.
 - Public routes render approved site content and accept contact/enquiry submissions. Public visitors have no account or access to leads, notes, assignments, and dashboard data.
 - Dashboard routes require a verified staff session. Only ADMIN and STAFF exist as internal roles.
 - Route/layout checks help navigation, but each private read and mutation independently checks identity, role, and resource scope on the server.

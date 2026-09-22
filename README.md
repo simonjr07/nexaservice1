@@ -6,7 +6,7 @@ Visitors will browse services, company information, and testimonials, then conta
 
 ## Current status
 
-**Planning and documentation.** The repository currently contains a Next.js starter. The product features, database, authentication, tests, and deployment workflow described in the docs are planned, not implemented.
+**Initial application shell.** The public site now has responsive navigation, a homepage, and static Services, About, and Contact pages. `/admin` is a public visual preview with placeholder sections only. The enquiry form, database, authentication, operational dashboard, tests, and deployment workflow remain planned. No quote request can be submitted yet.
 
 ## Planned stack
 
@@ -24,4 +24,4 @@ One Next.js App Router application using React, TypeScript, and Tailwind CSS; Po
 - [Security](docs/SECURITY.md): security requirements
 - [Deployment](docs/DEPLOYMENT.md): planned local and production workflow
 
-The current starter can be run with `npm run dev`. That command does not provide the planned product functionality.
+Run the current shell locally with `npm run dev`. The public quote CTA opens an honest coming-soon contact page; it does not submit an enquiry. Do not add private data or working admin actions to `/admin` until authentication and server-side authorization are implemented.

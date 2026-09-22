@@ -2,6 +2,8 @@
 
 These are requirements for future implementation, not claims that controls already exist.
 
+The current `/admin` route is a public, data-free visual placeholder. Do not add protected data or operational controls there until staff authentication and server-side authorization are implemented.
+
 ## Authentication
 
 - Use Auth.js for staff sign-in and sessions. There is no visitor registration or customer account flow.
