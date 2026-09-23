@@ -26,9 +26,9 @@ export default async function AdminLoginPage() {
         <Link href="/" className="w-fit rounded-full text-sm font-semibold text-accent underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent">Return to public site ↗</Link>
       </section>
       <section className="flex items-center justify-center px-5 py-14 sm:px-10 lg:px-16" aria-label="Staff sign in">
-        <div className="w-full max-w-md rounded-[2rem] border border-line bg-white p-7 shadow-sm sm:p-10">
+        <div className="w-full max-w-md rounded-4xl border border-line bg-white p-7 shadow-sm sm:p-10">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sea">Staff access</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-[-0.05em]">Sign in</h2>
+          <h2 className="mt-3 text-3xl font-semibold tracking-tighter">Sign in</h2>
           <p className="mt-3 text-sm leading-6 text-muted">Use your staff email and password to continue.</p>
           <LoginForm />
         </div>
