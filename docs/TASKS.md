@@ -11,6 +11,8 @@ TASK-003, the initial application shell, is complete. Authentication code for A0
 **Authentication checkpoint (2026-09-23):** A01 code, development provisioning command, and nine mocked authentication/authorization tests are in place. Keep A01 in progress until migration and provisioning run on local PostgreSQL and a real browser sign-in/sign-out and protected-route check pass. Sign-in rate limiting is also outstanding for production readiness.
 Prisma subsequently connected to local PostgreSQL and reported the migration up to date; a tenth, rollback-based database credential test passed. Provisioning and a complete browser sign-in/sign-out with a real account remain unverified. Docker container health is still unavailable here.
 
+**Lead-intake checkpoint (2026-09-23):** W02's public quote form, Server Action, validation, honeypot, and Prisma repository are implemented. Ten new enquiry tests, including a rollback-based PostgreSQL test, pass. A manual browser submission and durable-record check remain unverified because automatic browser approval review blocked input. Keep W02 in progress until that check passes. Deployment-grade rate limiting remains a production follow-up.
+
 | ID | Phase and task | Depends on | Completion criteria |
 | --- | --- | --- | --- |
 | P01 | Resolve content, forms, lead visibility, status rules, and settings decisions | — | Decisions and acceptance criteria recorded. |
@@ -21,7 +23,7 @@ Prisma subsequently connected to local PostgreSQL and reported the migration up 
 | A01 (in progress) | Implement Auth.js staff sign-in and sessions | F03, P01 | Sign-in/out works against local PostgreSQL; public sign-up absent. Code and unit tests exist; live verification is pending. |
 | A02 | Implement server role and lead visibility policies | A01, F04, P01 | Unauthorized reads and writes fail in integration tests. |
 | W01 | Build homepage, company, services, testimonials | F04, P01 | Public content renders responsively and accessibly. |
-| W02 | Build contact/enquiry form and creation service | W01, F04 | Valid submission creates `NEW` lead; invalid/abusive input handled. |
+| W02 (in progress) | Build contact/enquiry form and creation service | W01, F04 | Valid submission creates `NEW` lead; invalid/abusive input handled. Code and database test pass; manual UI verification is pending. |
 | D01 | Build dashboard shell and lead list/search/filter | A02, W02 | Authorized users see permitted leads and navigate details. |
 | D02 | Build lead detail, status changes, and internal notes | D01 | Changes persist, notes stay private, access enforced. |
 | D03 | Build assigned view and relevant metrics | D02, P01 | Views use authorized scope and documented metric definitions. |

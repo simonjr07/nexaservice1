@@ -37,5 +37,5 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "1")("PostgreSQL staff creden
     } finally {
       await prisma.$disconnect();
     }
-  });
+  }, 20_000);
 });

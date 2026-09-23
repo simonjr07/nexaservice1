@@ -2,7 +2,7 @@
 
 ## Current implementation checkpoint
 
-The public site and responsive dashboard shell are implemented. The database foundation includes local PostgreSQL Compose configuration, Prisma 7.10.0 schema/configuration, an initial SQL migration, and one server-side Client module at `src/server/db/client.ts`. Prisma connects to local PostgreSQL and reports the migration up to date. Staff authentication and role checks are implemented in code; a transactional credential test passes, while a full browser login with a provisioned account is not yet verified. Lead submission and operational dashboard features are not implemented.
+The public site and responsive dashboard shell are implemented. The database foundation includes local PostgreSQL Compose configuration, Prisma 7.10.0 schema/configuration, an initial SQL migration, and one server-side Client module at `src/server/db/client.ts`. Prisma connects to local PostgreSQL and reports the migration up to date. Staff authentication and role checks are implemented in code; a transactional credential test passes, while a full browser login with a provisioned account is not yet verified. Public lead intake is implemented and tested against PostgreSQL using a rolled-back transaction; a manual browser submission remains unverified. Operational dashboard features are not implemented.
 
 ## System overview and approved stack
 
@@ -28,7 +28,7 @@ NextAuth.js 4.24.15 uses a credentials provider and the existing Prisma `User` t
 
 ## Request flows
 
-1. **Public enquiry:** browser form -> server Zod validation and abuse controls -> business service -> Prisma creates a Lead with `NEW` status and optional Service relation -> safe acknowledgement.
+1. **Public enquiry (implemented):** `/contact#request-quote` form -> Server Action -> Zod validation and honeypot check -> enquiry service verifies any selected Service is published -> Prisma repository creates a `NEW`, unassigned Lead -> a public success/error state containing no Lead fields. No staff session is required.
 2. **Lead read:** dashboard request -> session and visibility check -> repository query with bounded search/filter -> minimal lead data -> view.
 3. **Lead mutation:** Server Action -> session/role check -> Zod validation -> business rule check -> repository mutation -> safe result and refreshed view.
 4. **Public content edit:** ADMIN action -> authorization and validation -> repository update -> refresh affected public view.
@@ -44,10 +44,13 @@ src/app/admin/(protected)/          authenticated workspace shell/placeholders
 src/app/api/auth/[...nextauth]/     Auth.js HTTP handler
 src/server/auth/                   credentials, session options, authorization
 src/server/db/                     centralized Prisma client
+src/server/db/repositories/        public lead-intake Prisma queries
+src/features/enquiry/              validation and creation rules
+src/components/public/enquiry-form.tsx  quote form UI
 src/components/dashboard/          dashboard UI and login/logout controls
 scripts/provision-admin.ts         explicit development administrator creation
 prisma/                            schema and migrations
 tests/auth/                        current authentication tests
 ```
 
-The App Router route group keeps the login page outside the protected layout without changing `/admin` URLs. The Auth.js handler is the only implemented HTTP endpoint.
+The App Router route group keeps the login page outside the protected layout without changing `/admin` URLs. The Auth.js handler is the only implemented HTTP endpoint; public lead creation uses one Server Action.

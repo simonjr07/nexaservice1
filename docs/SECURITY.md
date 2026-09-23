@@ -19,14 +19,14 @@ This document distinguishes implemented authentication controls from remaining s
 
 ## Input validation and output safety
 
-- Login input is validated with Zod on the server; email is trimmed/lowercased and passwords are bounded without trimming. Future public and internal feature inputs also need server validation.
+- Login and public quote inputs are validated with Zod on the server. Quote fields have length limits; email is trimmed/lowercased; optional blanks normalize to null; selected Service IDs must be valid UUIDs for published records. Future feature inputs also need server validation.
 - Render user text safely; never inject raw HTML from enquiries, notes, testimonials, or settings.
 - Redact personal data and secrets in logs. Return generic errors for unexpected failures and avoid disclosing internal resource existence.
 
 ## Rate limiting and public form abuse prevention
 
-- Rate-limit enquiry submission and sign-in attempts with a deployment-compatible mechanism. Thresholds and implementation are pending; sign-in rate limiting is **not** currently implemented and is required before production use.
-- Bound payload sizes and use low-friction bot mitigation appropriate to observed abuse. A honeypot or challenge may be chosen later; no provider is approved now.
+- Rate-limit enquiry submission and sign-in attempts with a deployment-compatible mechanism. Thresholds and implementation are pending; neither flow currently has deployment-grade rate limiting, which is required before production use.
+- The public quote form uses a visually hidden honeypot: a filled value receives a neutral acknowledgement without creating a Lead. Server field limits and Next.js's default Server Action body limit also bound input. No CAPTCHA or external bot provider is used.
 - Define duplicate-submission behavior and retention before launch. Do not reveal whether a contact address already exists.
 
 ## Secure configuration and data protection

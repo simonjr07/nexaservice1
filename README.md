@@ -6,7 +6,7 @@ Visitors will browse services, company information, and testimonials, then conta
 
 ## Current status
 
-The responsive public site and dashboard shell are implemented. Staff credentials authentication, role checks, login, logout, and a development-only administrator command are implemented in code. The dashboard still contains placeholders and no live business data. Prisma connects to local PostgreSQL and reports the initial migration up to date; a rollback-based credential test passes. A full browser sign-in/sign-out with a provisioned account remains unverified. Lead submission, management tools, CI, and production deployment remain planned.
+The responsive public site and dashboard shell are implemented. Staff credentials authentication, role checks, login, logout, and a development-only administrator command are implemented in code. The public quote form at `/contact#request-quote` now creates leads through server validation and Prisma; a rollback-based PostgreSQL test passes. A manual browser submission remains unverified. The dashboard still contains placeholders and no live business data. Lead management, CI, and production deployment remain planned.
 
 ## Stack
 
@@ -15,6 +15,8 @@ Next.js App Router, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, Au
 ## Local setup
 
 Run `npm install`, copy `.env.example` to an ignored `.env`, and set local PostgreSQL credentials, a matching `DATABASE_URL`, a long random `NEXTAUTH_SECRET`, and `NEXTAUTH_URL=http://localhost:3000`. Run `docker compose up -d db`, wait for a healthy database in `docker compose ps`, then run `npm run db:migrate` and `npm run db:generate`. Follow [development admin provisioning](docs/SECURITY.md#development-admin-provisioning) to create a local ADMIN; no default account exists. Start the app with `npm run dev` and sign in at `/admin/login`. Stop PostgreSQL with `docker compose down` to keep its named volume.
+
+Visitors can submit a quote enquiry at `/contact#request-quote` without an account. A selected service must be published; the form also accepts general enquiries when no service is available. Run `$env:RUN_DATABASE_TESTS = '1'; npm test` in PowerShell to include rollback-based PostgreSQL tests.
 
 Current checks: `npm run lint`, `npx next typegen`, `npx tsc --noEmit`, `npm test`, and `npm run build`.
 

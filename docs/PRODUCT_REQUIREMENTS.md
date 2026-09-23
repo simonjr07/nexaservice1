@@ -22,7 +22,7 @@ A service business needs a credible public presence that converts interest into 
 ## Functional requirements
 
 - Public pages: homepage, service list, individual service details, company information, and testimonials.
-- Public visitors can contact the business and submit a service enquiry/request for quote. Whether these are one form or two is pending.
+- Public visitors use one contact/request-a-quote form to submit a service enquiry without an account.
 - Every new enquiry starts with `NEW` status; linking a Service is optional. Visitors do not create accounts.
 - STAFF can sign in, view/search/filter leads, view lead details and assigned leads, update lead status, add internal notes, and view relevant dashboard metrics.
 - ADMIN can also assign leads and manage services, testimonials, staff users, and selected website settings.
