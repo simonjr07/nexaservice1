@@ -1,5 +1,9 @@
 # Architecture
 
+## Current implementation checkpoint
+
+The repository currently has the Next.js starter UI plus a **database foundation only**: local PostgreSQL Compose configuration, Prisma 7.10.0 schema/configuration, an unapplied initial SQL migration, generated Client output, and a single server-side Client module at `src/server/db/client.ts`. No page imports that module, and no authentication, lead submission, dashboard operation, or database-backed rendering exists. The previously planned application shell is not present in this checkout. The migration still needs a running local PostgreSQL instance before the database foundation can be called operational.
+
 ## System overview and approved stack
 
 NexaService is one Next.js App Router full-stack application. React and Tailwind CSS provide the UI; TypeScript is used across application code. Auth.js handles staff authentication, Zod validates inputs, React Hook Form supports forms, and server-side business logic uses Prisma to access PostgreSQL. Testing uses Vitest, React Testing Library, and Playwright. Docker supports local PostgreSQL, GitHub Actions runs CI, and Vercel plus hosted PostgreSQL is the production target. There is no separate Express backend.
@@ -14,6 +18,8 @@ NexaService is one Next.js App Router full-stack application. React and Tailwind
 ## Server-side business logic
 
 Pages and components focus on rendering. Server Actions handle form-driven application mutations where appropriate. Route Handlers are reserved for explicit HTTP endpoints when useful. Both call shared validation, authorization, and business services. Prisma calls stay in a server-only data-access layer, not scattered across React components. Server Components may initiate reads through that layer.
+
+The centralized Prisma module uses the PostgreSQL driver adapter required by Prisma 7 and reuses one Client instance during development hot reload. It reads `DATABASE_URL` only when imported at runtime; schema validation and Client generation do not connect to a database.
 
 ## Authentication and authorization
 

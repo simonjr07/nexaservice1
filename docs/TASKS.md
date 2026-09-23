@@ -2,6 +2,8 @@
 
 All tasks below are planned, not completed by this documentation pass. IDs are references for future work. A task is complete when its behavior is implemented, reviewed, and covered by appropriate checks.
 
+**Database foundation checkpoint (2026-09-23):** F02 and F03 are in progress. Compose, environment example, Prisma configuration, six models, indexes, and an initial SQL migration are prepared. Docker/PostgreSQL was unavailable, so container health, connectivity, and migration application have not been verified. Do not mark F02 or F03 complete until those checks pass on a local database. No application feature task is completed by this checkpoint.
+
 | ID | Phase and task | Depends on | Completion criteria |
 | --- | --- | --- | --- |
 | P01 | Resolve content, forms, lead visibility, status rules, and settings decisions | — | Decisions and acceptance criteria recorded. |
