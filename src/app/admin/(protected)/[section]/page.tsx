@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { requireStaff } from "@/server/auth/authorization";
 
 const sections: Record<string, { title: string; description: string }> = {
-  services: { title: "Services", description: "Administrators will be able to manage public service content here in a later task." },
   testimonials: { title: "Testimonials", description: "This area is reserved for future management of approved public testimonials." },
   users: { title: "Users", description: "Staff account management is planned as an administrator-only feature." },
   settings: { title: "Settings", description: "Selected website settings will be managed here by administrators in a later task." },

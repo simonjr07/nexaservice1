@@ -1,27 +1,10 @@
 import Link from "next/link";
+import { connection } from "next/server";
+import { serviceRepository } from "@/server/db/repositories/services";
 
-const services = [
-  {
-    number: "01",
-    title: "Workspace care",
-    description: "Keep everyday spaces ready for the people who use them, with thoughtful ongoing support.",
-    detail: "Everyday spaces",
-  },
-  {
-    number: "02",
-    title: "Property maintenance",
-    description: "Make upkeep easier to plan, coordinate, and follow through from first request to final check.",
-    detail: "Places that last",
-  },
-  {
-    number: "03",
-    title: "Project support",
-    description: "Bring structure and a reliable point of contact to the practical work behind a new project.",
-    detail: "Plans in motion",
-  },
-];
-
-export default function Home() {
+export default async function Home() {
+  await connection();
+  const services = (await serviceRepository.listPublished()).slice(0, 3);
   return (
     <>
       <section className="relative overflow-hidden bg-deep text-white">
@@ -84,21 +67,21 @@ export default function Home() {
           </div>
           <Link href="/services" className="w-fit rounded-sm text-sm font-semibold text-sea hover:underline">View all services <span aria-hidden="true">↗</span></Link>
         </div>
-        <div className="mt-10 grid gap-5 md:grid-cols-3">
-          {services.map((service) => (
-            <article key={service.number} className="group flex min-h-80 flex-col rounded-3xl border border-line bg-white p-7 transition-colors hover:border-sea/35 sm:p-8">
+        {services.length === 0 ? <div className="mt-10 rounded-3xl border border-line bg-white p-8"><h3 className="text-xl font-semibold">Service details are coming together.</h3><p className="mt-3 text-sm leading-7 text-muted">You can still tell us what kind of support you need.</p><Link href="/contact#request-quote" className="mt-5 inline-flex text-sm font-semibold text-sea hover:underline">Request a quote ↗</Link></div> : <div className="mt-10 grid gap-5 md:grid-cols-3">
+          {services.map((service, index) => (
+            <article key={service.id} className="group flex min-h-80 flex-col rounded-3xl border border-line bg-white p-7 transition-colors hover:border-sea/35 sm:p-8">
               <div className="flex items-start justify-between">
-                <span className="text-xs font-semibold tracking-[0.2em] text-sea">{service.number} / SERVICE</span>
+                <span className="text-xs font-semibold tracking-[0.2em] text-sea">{String(index + 1).padStart(2, "0")} / SERVICE</span>
                 <span aria-hidden="true" className="grid h-12 w-12 place-items-center rounded-2xl bg-paper text-xl text-sea transition-colors group-hover:bg-accent">↗</span>
               </div>
               <div className="mt-auto">
-                <p className="text-xs font-medium text-muted">{service.detail}</p>
-                <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em]">{service.title}</h3>
-                <p className="mt-4 text-sm leading-7 text-muted">{service.description}</p>
+                <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em]">{service.name}</h3>
+                <p className="mt-4 text-sm leading-7 text-muted">{service.shortDescription}</p>
+                <Link href={`/services/${service.slug}`} className="mt-5 inline-flex min-h-11 items-center text-sm font-semibold text-sea hover:underline">Explore service ↗</Link>
               </div>
             </article>
           ))}
-        </div>
+        </div>}
       </section>
 
       <section className="bg-[#eaf0e8] py-20 md:py-28" aria-labelledby="why-heading">

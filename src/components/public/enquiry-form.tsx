@@ -13,9 +13,9 @@ const initialValues: Values = {
 
 const inputClass = "mt-2 min-h-12 w-full rounded-xl border border-line bg-white px-4 py-3 text-ink outline-none transition-colors placeholder:text-muted/60 focus-visible:border-sea focus-visible:ring-2 focus-visible:ring-sea/20 disabled:opacity-60";
 
-export function EnquiryForm({ services }: { services: { id: string; name: string }[] }) {
+export function EnquiryForm({ services, initialServiceId = "" }: { services: { id: string; name: string }[]; initialServiceId?: string }) {
   const [state, formAction, pending] = useActionState(submitEnquiry, initialEnquiryState);
-  const [values, setValues] = useState<Values>(initialValues);
+  const [values, setValues] = useState<Values>(() => ({ ...initialValues, serviceId: initialServiceId }));
   const submitting = useRef(false);
   const errors = state.status === "invalid" ? state.fieldErrors : {};
 

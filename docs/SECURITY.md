@@ -1,6 +1,6 @@
 # Security plan
 
-This document distinguishes implemented controls from remaining security work. `/admin` requires a staff session; its lead pages contain real private data while other management areas remain placeholders.
+This document distinguishes implemented controls from remaining security work. `/admin` requires a staff session; its lead pages contain real private data, and its Service pages allow ADMIN content management. Other management areas remain placeholders.
 
 ## Authentication
 
@@ -12,14 +12,15 @@ This document distinguishes implemented controls from remaining security work. `
 ## Authorization
 
 - The protected `/admin` layout requires a session and a current `User` row. Deleted accounts lose access even if their JWT is unexpired; role changes use the current database role. `/admin/login` remains public.
-- ADMIN and STAFF can enter the dashboard and currently read all leads, change status, and add internal notes. Each lead page and mutation rechecks staff identity on the server. STAFF cannot assign, including by invoking the assignment Action directly; ADMIN-only placeholder routes also reject STAFF server-side.
+- ADMIN and STAFF can enter the dashboard and currently read all leads, change status, and add internal notes. Each lead page and mutation rechecks staff identity on the server. STAFF cannot assign, including by invoking the assignment Action directly. Service management pages and every Service mutation independently require ADMIN, including direct Server Action requests; STAFF cannot manage Services.
 - Lead details and notes are selected only for protected routes. The note author comes from the current User, never from form data. The initial all-leads STAFF visibility rule requires product review before production; narrower resource checks will be required if it changes.
 - Never trust client role data, hidden buttons, route layouts, or submitted user IDs as authorization. Enforce policy in server business/data-access paths.
 - Return minimal data; public paths must never expose leads or internal notes.
+- Public Service queries filter `published = true` on the server. Draft details return 404. The quote form lists published Services and validates publication again when an enquiry is submitted. Unpublishing keeps historical Leads and their Service relation.
 
 ## Input validation and output safety
 
-- Login, public quote, lead search/filter, lead IDs, status changes, notes, and assignments are validated with Zod on the server. Quote fields have length limits; email is trimmed/lowercased; optional blanks normalize to null; selected Service IDs must be valid UUIDs for published records.
+- Login, public quote, lead search/filter, lead IDs, status changes, notes, assignments, and Service writes are validated with Zod on the server. Quote fields have length limits; email is trimmed/lowercased; optional blanks normalize to null; selected Service IDs must be valid UUIDs for published records. Service slugs are normalized and constrained before persistence; unique conflicts return safe feedback.
 - Render user text safely; never inject raw HTML from enquiries, notes, testimonials, or settings.
 - Redact personal data and secrets in logs. Return generic errors for unexpected failures and avoid disclosing internal resource existence.
 

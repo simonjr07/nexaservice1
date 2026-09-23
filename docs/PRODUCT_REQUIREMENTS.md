@@ -28,6 +28,7 @@ A service business needs a credible public presence that converts interest into 
 - ADMIN can also assign leads and manage services, testimonials, staff users, and selected website settings.
 - Lead statuses: `NEW`, `CONTACTED`, `QUALIFIED`, `WON`, `LOST`. Lead assignment is optional.
 - Public routes never expose lead data or internal notes. Only ADMIN manages staff accounts and changes public service content. All authorization is enforced server-side.
+- Service management supports ADMIN creation, editing, publication, and unpublication. Only published Services appear in public listings and details or can be selected for new enquiries. Unpublishing keeps historical Lead associations.
 
 ## Non-functional requirements
 
@@ -48,6 +49,7 @@ A service business needs a credible public presence that converts interest into 
 | US-05 | ADMIN assigns work. | ADMIN can assign or clear an eligible assignee; STAFF cannot perform the operation. |
 | US-06 | ADMIN manages content and people. | ADMIN can manage services, testimonials, staff, and selected settings; STAFF mutations are denied on the server. |
 | US-07 | Visitor information stays private. | Public routes and responses reveal no leads, notes, assignments, or staff account data. |
+| US-08 | ADMIN manages Services. | ADMIN can create a draft, edit its content and slug, publish/unpublish it; STAFF cannot manage Services; public visitors see only published Services. |
 
 ## MVP scope
 

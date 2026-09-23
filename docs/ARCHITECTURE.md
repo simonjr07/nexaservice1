@@ -2,7 +2,7 @@
 
 ## Current implementation checkpoint
 
-The public site and responsive dashboard shell are implemented. The database foundation includes local PostgreSQL Compose configuration, Prisma 7.10.0 schema/configuration, an initial SQL migration, and one server-side Client module at `src/server/db/client.ts`. Prisma connects to local PostgreSQL and reports the migration up to date. Staff authentication and role checks are implemented in code; a transactional credential test passes, while a full browser login with a provisioned account is not yet verified. Public lead intake and protected lead management are implemented and tested against PostgreSQL using rolled-back transactions. A fictional public browser submission was verified in durable PostgreSQL; the subsequent admin browser workflow remains unverified. Other dashboard areas remain placeholders.
+The public site and responsive dashboard shell are implemented. The database foundation includes local PostgreSQL Compose configuration, Prisma 7.10.0 schema/configuration, an initial SQL migration, and one server-side Client module at `src/server/db/client.ts`. Prisma connects to local PostgreSQL and reports the migration up to date. Staff authentication and role checks are implemented in code; a transactional credential test passes, while a full browser login with a provisioned account is not yet verified. Public lead intake and protected lead management are implemented and tested against PostgreSQL using rolled-back transactions. ADMIN Service management and published-only public Service reads are implemented. A fictional public browser enquiry was verified in durable PostgreSQL; the admin browser workflows remain unverified. Testimonials, users, and settings management remain placeholders.
 
 ## System overview and approved stack
 
@@ -10,7 +10,7 @@ NexaService is one Next.js App Router full-stack application. React and Tailwind
 
 ## Public and private boundaries
 
-- `/admin` and its child routes use a server-checked staff layout. `/admin/login` stays public. `/admin/leads` and `/admin/leads/[id]` read real Lead data; other management areas remain placeholders without metrics or operations.
+- `/admin` and its child routes use a server-checked staff layout. `/admin/login` stays public. `/admin/leads` and `/admin/leads/[id]` read real Lead data. `/admin/services`, `/admin/services/new`, and `/admin/services/[id]/edit` require ADMIN; other management areas remain placeholders.
 - Public routes render approved site content and accept contact/enquiry submissions. Public visitors have no account or access to leads, notes, assignments, and dashboard data.
 - Dashboard routes require a verified staff session. Only ADMIN and STAFF exist as internal roles.
 - Route/layout checks help navigation, but each private read and mutation independently checks identity, role, and resource scope on the server.
@@ -31,7 +31,7 @@ NextAuth.js 4.24.15 uses a credentials provider and the existing Prisma `User` t
 1. **Public enquiry (implemented):** `/contact#request-quote` form -> Server Action -> Zod validation and honeypot check -> enquiry service verifies any selected Service is published -> Prisma repository creates a `NEW`, unassigned Lead -> a public success/error state containing no Lead fields. No staff session is required.
 2. **Lead read (implemented):** dashboard request -> fresh session/User check -> Zod validation of filters or lead ID -> Prisma repository query with bounded search, filters, and 50-row pages -> selected lead data and private notes in the protected view.
 3. **Lead mutation (implemented):** Server Action -> fresh session/User check -> service-level STAFF or ADMIN role check -> Zod validation -> repository status/note/assignment write -> safe result and revalidated list/detail. The note author ID comes only from the session.
-4. **Public content edit:** ADMIN action -> authorization and validation -> repository update -> refresh affected public view.
+4. **Service content edit (implemented):** ADMIN page/Server Action -> fresh User and ADMIN check -> Zod validation and slug conflict check -> Service repository write -> revalidate admin list, public listing/detail, and contact form. Public repository reads use `published = true`; old Leads retain their Service relation when a Service becomes unpublished.
 
 ## Proposed application structure
 
@@ -48,12 +48,16 @@ src/server/db/repositories/        public lead-intake Prisma queries
 src/features/enquiry/              validation and creation rules
 src/components/public/enquiry-form.tsx  quote form UI
 src/features/leads/                protected lead validation and business rules
+src/features/services/             Service validation and management rules
+src/server/db/repositories/services.ts  admin and published-only Service queries
+src/app/admin/(protected)/services/ ADMIN Service pages and actions
+src/app/(public)/services/          dynamic published listing and detail
 src/server/db/repositories/lead-management.ts  selected lead reads and writes
 src/app/admin/(protected)/leads/    lead list, detail, and Server Actions
 src/components/dashboard/          dashboard UI, lead forms, and login/logout controls
 scripts/provision-admin.ts         explicit development administrator creation
 prisma/                            schema and migrations
-tests/auth/, tests/enquiry/, tests/leads/  current authentication and lead tests
+tests/auth/, tests/enquiry/, tests/leads/, tests/services/  current workflow tests
 ```
 
 The App Router route group keeps the login page outside the protected layout without changing `/admin` URLs. The Auth.js handler is the only implemented HTTP endpoint; public lead creation and protected lead changes use Server Actions.

@@ -9,9 +9,11 @@ export const metadata: Metadata = {
   description: "Tell NexaService about your project or space and request a quote.",
 };
 
-export default async function ContactPage() {
+export default async function ContactPage({ searchParams }: { searchParams: Promise<{ serviceId?: string | string[] }> }) {
   await connection();
   const services = await leadIntakeRepository.listPublishedServices().catch(() => []);
+  const requestedServiceId = (await searchParams).serviceId;
+  const initialServiceId = typeof requestedServiceId === "string" && services.some((service) => service.id === requestedServiceId) ? requestedServiceId : "";
 
   return (
     <section className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 md:py-28 lg:grid-cols-[0.8fr_1.2fr] lg:items-start lg:gap-20 lg:px-12">
@@ -29,7 +31,7 @@ export default async function ContactPage() {
           <h2 className="mt-3 text-3xl font-semibold tracking-[-0.05em]">Tell us what you need.</h2>
           <p className="mt-3 text-sm leading-7 text-white/70">A few details will help us start the conversation.</p>
         </div>
-        <div className="p-7 sm:p-10"><EnquiryForm services={services} /></div>
+        <div className="p-7 sm:p-10"><EnquiryForm key={initialServiceId} services={services} initialServiceId={initialServiceId} /></div>
       </div>
     </section>
   );

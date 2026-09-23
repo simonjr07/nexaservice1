@@ -21,7 +21,7 @@ The initial PostgreSQL schema is defined in `prisma/schema.prisma`. Prisma 7.10.
 - Every foreign key uses `ON DELETE RESTRICT`: deleting a Service, assigned User, Lead, or note author while referenced is blocked. This protects lead history and internal notes from cascade deletion. A future archive/deactivation policy is still needed.
 - The migration adds a PostgreSQL check requiring `SiteSettings.id = 1`. Combined with the primary key, at most one settings row can exist. Future application code should read/upsert ID 1; it must not assume the row already exists.
 - Prisma generates UUID values and `updatedAt` values through the Client. Raw SQL inserts must supply values where the migration has no database default.
-- Unique email/slug comparisons are currently PostgreSQL case-sensitive. Authentication and development provisioning trim/lowercase staff emails before lookup/storage; this does not enforce case-insensitive uniqueness for rows inserted by other means. Service slug normalization is pending.
+- Unique email/slug comparisons are PostgreSQL case-sensitive. Authentication and development provisioning trim/lowercase staff emails before lookup/storage; this does not enforce case-insensitive uniqueness for rows inserted by other means. Service management trims and lowercases slugs, turns whitespace into hyphens, validates their shape, and handles unique constraint conflicts. Direct database writes must obey the same convention.
 
 ## Query indexes
 
@@ -39,4 +39,4 @@ Apply the checked-in migration to a new **local development** database using the
 
 ## Decisions still pending
 
-Database-level case-insensitive email uniqueness, slug normalization, staff and lead deletion or archival, the final STAFF visibility policy, production data retention, and production administrator provisioning. The initial lead list now searches name/email/company with case-insensitive substring filters; no text-search index has been added. The user-specified initial field list is implemented; changes to it need review before a later migration.
+Database-level case-insensitive email uniqueness, database-level slug format enforcement, staff and lead deletion or archival, the final STAFF visibility policy, production data retention, and production administrator provisioning. Application slug normalization is implemented for ADMIN writes. Service hard deletion is unavailable; unpublishing leaves historical Lead references intact. Changing a published slug changes its URL, and redirect management is not implemented. The initial lead list searches name/email/company with case-insensitive substring filters; no text-search index has been added. The user-specified initial field list is implemented; changes to it need review before a later migration.
