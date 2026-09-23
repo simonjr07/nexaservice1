@@ -9,15 +9,17 @@ This is primarily an interface plan. Staff sign-in/sign-out uses the Auth.js HTT
 | Read homepage, services, service detail, company information, testimonials | Public | App Router pages/server reads | Return public content only. |
 | Submit contact/enquiry | Public | Implemented `/contact#request-quote` Server Action | Zod validation, honeypot, optional published Service, `NEW` unassigned Lead, safe response; no account required. |
 | Sign in/out | Staff | Implemented Auth.js credentials handler and `/admin/login` UI | Email/password against User; no public self-registration. Real database flow remains unverified here. |
-| List/search/filter leads; read detail and assigned leads | STAFF, ADMIN | Protected server reads | Verify session and lead visibility. |
+| List/search/filter leads; read detail | STAFF, ADMIN | Implemented `/admin/leads` and `/admin/leads/[id]` server reads | Fresh session/User check; all leads visible in this initial workflow. Assigned-only view remains planned. |
 | Read dashboard metrics | STAFF, ADMIN | Protected server read | Scope metrics to authorized leads. |
-| Update status; add internal note | STAFF, ADMIN | Server Actions | Verify session and per-lead access. |
-| Assign/unassign lead | ADMIN | Server Action | Validate eligible assignee. |
+| Update status; add internal note | STAFF, ADMIN | Implemented lead-detail Server Actions | Verify current staff identity; validate status/content; derive note author from session. |
+| Assign/unassign lead | ADMIN | Implemented lead-detail Server Action | Check ADMIN on the server; validate current User or clear assignment. |
 | Manage services, testimonials, staff, settings | ADMIN | Server Actions | Validate each write and enforce ADMIN. |
 
 ## Validation
 
 - Public quote fields: required `name` (2–120), `email` (valid format, max 254), and `message` (10–3000); optional `phone` (7–40), `company` (max 120), and `serviceId` (UUID of a currently published Service). Text is trimmed, email lowercased, and blank optional values become null in persistence. The page lists published services only; an empty list leaves general enquiry available.
+- Lead list query parameters: `q` searches name/email/company case-insensitively (max 100 characters); `status` accepts the five Lead statuses; `serviceId` is a UUID; `page` is 1–1000. Results are newest-first in pages of 50. Invalid filters show a reset link rather than running an unbounded query.
+- Lead mutation inputs: UUID lead ID, one of `NEW`, `CONTACTED`, `QUALIFIED`, `WON`, `LOST`, a trimmed internal note of 2–2000 characters, or an eligible ADMIN/STAFF User ID (empty clears assignment). No client-supplied author or role is accepted. Any listed status may currently replace another; transition rules are pending review.
 - Use Zod at server boundaries for form data, parameters, query filters, and HTTP bodies. React Hook Form feedback does not replace server validation.
 - Reject invalid enum values. Ignore client assertions about role, note author, or initial lead status.
 - An optional service ID must reference an eligible service. Bound page size, search length, and sort choices.
@@ -26,6 +28,7 @@ This is primarily an interface plan. Staff sign-in/sign-out uses the Auth.js HTT
 ## Response and error conventions
 
 - The quote Action returns only `{status: "success"}`, `{status: "invalid", fieldErrors}`, or `{status: "error"}`. The success state has no Lead ID, status, assignment, or private fields. Other Server Action result shapes remain pending.
+- Lead Actions return a small `status` result (`success`, `invalid`, `notFound`, `forbidden`, or generic `error`); invalid results may include a safe message. They never return raw Lead or User records. Unknown lead detail URLs return a 404. Database failures show a generic UI error.
 - Explicit HTTP endpoints, if added, should use `400` malformed input, `401` unauthenticated, `403` forbidden, `404` unavailable resource, `409` genuine conflict, and `429` rate limit. Decide whether `403` or `404` better protects private resource existence in each context.
 - Unexpected failures produce generic client errors and redacted server logs. Never return stack traces, secrets, or private lead fields.
 - A successful public submission returns a neutral acknowledgement, not the created lead record.

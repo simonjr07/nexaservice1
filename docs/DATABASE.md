@@ -39,4 +39,4 @@ Apply the checked-in migration to a new **local development** database using the
 
 ## Decisions still pending
 
-Database-level case-insensitive email uniqueness, slug normalization, lead search fields, staff and lead deletion or archival, staff visibility, production data retention, and production administrator provisioning. The user-specified initial field list is implemented; changes to it need review before a later migration.
+Database-level case-insensitive email uniqueness, slug normalization, staff and lead deletion or archival, the final STAFF visibility policy, production data retention, and production administrator provisioning. The initial lead list now searches name/email/company with case-insensitive substring filters; no text-search index has been added. The user-specified initial field list is implemented; changes to it need review before a later migration.

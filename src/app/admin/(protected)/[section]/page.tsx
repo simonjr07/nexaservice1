@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { requireStaff } from "@/server/auth/authorization";
 
 const sections: Record<string, { title: string; description: string }> = {
-  leads: { title: "Leads", description: "Enquiries, assignments, status changes, and internal notes will live here after the secure workflow is built." },
   services: { title: "Services", description: "Administrators will be able to manage public service content here in a later task." },
   testimonials: { title: "Testimonials", description: "This area is reserved for future management of approved public testimonials." },
   users: { title: "Users", description: "Staff account management is planned as an administrator-only feature." },
@@ -15,7 +14,7 @@ export default async function AdminSectionPage({ params }: { params: Promise<{ s
   const { section } = await params;
   const content = sections[section];
   if (!content) notFound();
-  if (section !== "leads" && user.role !== "ADMIN") notFound();
+  if (user.role !== "ADMIN") notFound();
 
   return (
     <>

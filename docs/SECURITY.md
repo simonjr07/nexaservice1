@@ -1,6 +1,6 @@
 # Security plan
 
-This document distinguishes implemented authentication controls from remaining security work. `/admin` now requires a staff session; its content remains a data-free placeholder.
+This document distinguishes implemented controls from remaining security work. `/admin` requires a staff session; its lead pages contain real private data while other management areas remain placeholders.
 
 ## Authentication
 
@@ -12,14 +12,14 @@ This document distinguishes implemented authentication controls from remaining s
 ## Authorization
 
 - The protected `/admin` layout requires a session and a current `User` row. Deleted accounts lose access even if their JWT is unexpired; role changes use the current database role. `/admin/login` remains public.
-- ADMIN and STAFF can enter the dashboard shell. ADMIN-only placeholder routes are hidden from STAFF navigation and reject STAFF server-side. Reusable `requireAuthenticatedUser`, `requireStaff`, and `requireAdmin` helpers are available to future server reads/actions. Assignment and management operations are still planned and must check ADMIN in each server operation.
-- Check resource access on every lead read, status change, and note write. The exact STAFF visibility policy requires approval.
+- ADMIN and STAFF can enter the dashboard and currently read all leads, change status, and add internal notes. Each lead page and mutation rechecks staff identity on the server. STAFF cannot assign, including by invoking the assignment Action directly; ADMIN-only placeholder routes also reject STAFF server-side.
+- Lead details and notes are selected only for protected routes. The note author comes from the current User, never from form data. The initial all-leads STAFF visibility rule requires product review before production; narrower resource checks will be required if it changes.
 - Never trust client role data, hidden buttons, route layouts, or submitted user IDs as authorization. Enforce policy in server business/data-access paths.
 - Return minimal data; public paths must never expose leads or internal notes.
 
 ## Input validation and output safety
 
-- Login and public quote inputs are validated with Zod on the server. Quote fields have length limits; email is trimmed/lowercased; optional blanks normalize to null; selected Service IDs must be valid UUIDs for published records. Future feature inputs also need server validation.
+- Login, public quote, lead search/filter, lead IDs, status changes, notes, and assignments are validated with Zod on the server. Quote fields have length limits; email is trimmed/lowercased; optional blanks normalize to null; selected Service IDs must be valid UUIDs for published records.
 - Render user text safely; never inject raw HTML from enquiries, notes, testimonials, or settings.
 - Redact personal data and secrets in logs. Return generic errors for unexpected failures and avoid disclosing internal resource existence.
 

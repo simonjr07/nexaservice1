@@ -11,7 +11,9 @@ TASK-003, the initial application shell, is complete. Authentication code for A0
 **Authentication checkpoint (2026-09-23):** A01 code, development provisioning command, and nine mocked authentication/authorization tests are in place. Keep A01 in progress until migration and provisioning run on local PostgreSQL and a real browser sign-in/sign-out and protected-route check pass. Sign-in rate limiting is also outstanding for production readiness.
 Prisma subsequently connected to local PostgreSQL and reported the migration up to date; a tenth, rollback-based database credential test passed. Provisioning and a complete browser sign-in/sign-out with a real account remain unverified. Docker container health is still unavailable here.
 
-**Lead-intake checkpoint (2026-09-23):** W02's public quote form, Server Action, validation, honeypot, and Prisma repository are implemented. Ten new enquiry tests, including a rollback-based PostgreSQL test, pass. A manual browser submission and durable-record check remain unverified because automatic browser approval review blocked input. Keep W02 in progress until that check passes. Deployment-grade rate limiting remains a production follow-up.
+**Lead-intake checkpoint (2026-09-23):** W02's public quote form, Server Action, validation, honeypot, and Prisma repository are implemented. Ten enquiry tests, including a rollback-based PostgreSQL test, pass. A later fictional browser submission received a success acknowledgement and its durable PostgreSQL row was verified as `NEW` and unassigned. W02 is complete for the development workflow. Deployment-grade rate limiting remains a production follow-up.
+
+**Lead-management checkpoint (2026-09-23):** D01 lead list/search/filter, D02 detail/status/private notes, and M01 ADMIN assignment are implemented with server-side checks and rollback-based PostgreSQL coverage. Keep these tasks in progress until the public-enquiry-to-admin browser workflow is verified. The current STAFF policy shows all leads; all five statuses may be chosen from any current status. Review these policies before production. D03 assigned view/metrics remains planned.
 
 | ID | Phase and task | Depends on | Completion criteria |
 | --- | --- | --- | --- |
@@ -21,13 +23,13 @@ Prisma subsequently connected to local PostgreSQL and reported the migration up 
 | F03 | Implement entities and constraints | F02, P01 | Reviewed migration matches approved data model. |
 | F04 | Build validation, repositories, business services, and error conventions | F03 | Server-only data access and validation covered by tests. |
 | A01 (in progress) | Implement Auth.js staff sign-in and sessions | F03, P01 | Sign-in/out works against local PostgreSQL; public sign-up absent. Code and unit tests exist; live verification is pending. |
-| A02 | Implement server role and lead visibility policies | A01, F04, P01 | Unauthorized reads and writes fail in integration tests. |
+| A02 (in progress) | Implement server role and lead visibility policies | A01, F04, P01 | Current all-leads STAFF access and ADMIN-only assignment are server checked; final visibility policy needs review. |
 | W01 | Build homepage, company, services, testimonials | F04, P01 | Public content renders responsively and accessibly. |
-| W02 (in progress) | Build contact/enquiry form and creation service | W01, F04 | Valid submission creates `NEW` lead; invalid/abusive input handled. Code and database test pass; manual UI verification is pending. |
-| D01 | Build dashboard shell and lead list/search/filter | A02, W02 | Authorized users see permitted leads and navigate details. |
-| D02 | Build lead detail, status changes, and internal notes | D01 | Changes persist, notes stay private, access enforced. |
+| W02 (complete) | Build contact/enquiry form and creation service | W01, F04 | Valid browser submission and database record verified; validation and abuse handling pass tests. |
+| D01 (in progress) | Build dashboard shell and lead list/search/filter | A02, W02 | Protected list and filters work in database tests; browser verification pending. |
+| D02 (in progress) | Build lead detail, status changes, and internal notes | D01 | Detail and mutations work in database tests; browser verification pending. |
 | D03 | Build assigned view and relevant metrics | D02, P01 | Views use authorized scope and documented metric definitions. |
-| M01 | Build ADMIN assignment | D02, A02 | ADMIN can assign/clear; STAFF denied. |
+| M01 (in progress) | Build ADMIN assignment | D02, A02 | ADMIN/STAFF role checks and persistence pass tests; browser verification pending. |
 | M02 | Build ADMIN service and testimonial management | W01, A02 | Authorized edits appear publicly; STAFF denied. |
 | M03 | Build ADMIN staff and selected settings management | A02, P01 | Approved provisioning and settings rules work. |
 | Q01 | Add unit, integration, and component coverage | F04 onward | Critical rules and UI states in Testing pass. |
