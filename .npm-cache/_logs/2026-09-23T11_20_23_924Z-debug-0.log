@@ -1,0 +1,72 @@
+0 verbose cli C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js
+1 info using npm@11.12.1
+2 info using node@v25.9.0
+3 silly config load:file:C:\Program Files\nodejs\node_modules\npm\npmrc
+4 silly config load:file:C:\Users\Admin\Desktop\nexaservice\.npmrc
+5 silly config load:file:C:\Users\Admin\.npmrc
+6 silly config load:file:C:\Users\Admin\AppData\Roaming\npm\etc\npmrc
+7 verbose title npm install next-auth@4.24.15 bcryptjs zod
+8 verbose argv "install" "next-auth@4.24.15" "bcryptjs" "zod" "--cache" ".npm-cache" "--fetch-retries" "1" "--fetch-timeout" "15000"
+9 verbose logfile logs-max:10 dir:C:\Users\Admin\Desktop\nexaservice\.npm-cache\_logs\2026-09-23T11_20_23_924Z-
+10 verbose logfile C:\Users\Admin\Desktop\nexaservice\.npm-cache\_logs\2026-09-23T11_20_23_924Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:2348810240 maxSize:587202560 maxEntrySize:293601280
+13 http fetch GET https://registry.npmjs.org/npm attempt 1 failed with EACCES
+14 silly idealTree buildDeps
+15 silly fetch manifest next-auth@4.24.15
+16 silly packumentCache full:https://registry.npmjs.org/next-auth cache-miss
+17 http fetch GET https://registry.npmjs.org/next-auth attempt 1 failed with EACCES
+18 http fetch GET https://registry.npmjs.org/npm attempt 2 failed with EACCES
+19 http fetch GET https://registry.npmjs.org/next-auth attempt 2 failed with EACCES
+20 silly fetch manifest bcryptjs@*
+21 silly packumentCache full:https://registry.npmjs.org/bcryptjs cache-miss
+22 http fetch GET https://registry.npmjs.org/bcryptjs attempt 1 failed with EACCES
+23 http fetch GET https://registry.npmjs.org/bcryptjs attempt 2 failed with EACCES
+24 silly fetch manifest zod@*
+25 silly packumentCache full:https://registry.npmjs.org/zod cache-miss
+26 http fetch GET https://registry.npmjs.org/zod attempt 1 failed with EACCES
+27 http fetch GET https://registry.npmjs.org/zod attempt 2 failed with EACCES
+28 silly placeDep ROOT bcryptjs@ OK for: nexaservice@0.1.0 want: *
+29 silly placeDep ROOT next-auth@ OK for: nexaservice@0.1.0 want: 4.24.15
+30 silly placeDep ROOT zod@ REPLACE for: nexaservice@0.1.0 want: *
+31 silly fetch manifest zod-validation-error@^3.5.0 || ^4.0.0
+32 silly packumentCache full:https://registry.npmjs.org/zod-validation-error cache-miss
+33 http fetch GET https://registry.npmjs.org/zod-validation-error attempt 1 failed with EACCES
+34 http fetch GET https://registry.npmjs.org/zod-validation-error attempt 2 failed with EACCES
+35 silly placeDep node_modules/eslint-plugin-react-hooks zod-validation-error@ OK for: eslint-plugin-react-hooks@7.1.1 want: ^3.5.0 || ^4.0.0
+36 verbose type system
+37 verbose stack FetchError: request to https://registry.npmjs.org/bcryptjs failed, reason: 
+37 verbose stack     at ClientRequest.<anonymous> (C:\Program Files\nodejs\node_modules\npm\node_modules\minipass-fetch\lib\index.js:130:14)
+37 verbose stack     at ClientRequest.emit (node:events:509:20)
+37 verbose stack     at emitErrorEvent (node:_http_client:109:11)
+37 verbose stack     at _destroy (node:_http_client:993:9)
+37 verbose stack     at onSocketNT (node:_http_client:1013:5)
+37 verbose stack     at process.processTicksAndRejections (node:internal/process/task_queues:91:21)
+38 error code EACCES
+39 error errno EACCES
+40 error FetchError: request to https://registry.npmjs.org/bcryptjs failed, reason: 
+40 error     at ClientRequest.<anonymous> (C:\Program Files\nodejs\node_modules\npm\node_modules\minipass-fetch\lib\index.js:130:14)
+40 error     at ClientRequest.emit (node:events:509:20)
+40 error     at emitErrorEvent (node:_http_client:109:11)
+40 error     at _destroy (node:_http_client:993:9)
+40 error     at onSocketNT (node:_http_client:1013:5)
+40 error     at process.processTicksAndRejections (node:internal/process/task_queues:91:21) {
+40 error   code: 'EACCES',
+40 error   errno: 'EACCES',
+40 error   type: 'system',
+40 error   requiredBy: '.'
+40 error }
+41 error
+41 error The operation was rejected by your operating system.
+41 error It's possible that the file was already in use (by a text editor or antivirus), or that you lack permissions to access it.
+41 error
+41 error If you believe this might be a permissions issue, please double-check the permissions of the file and its containing directories, or try running the command again as root/Administrator.
+42 silly unfinished npm timer reify 1790162427254
+43 silly unfinished npm timer reify:loadTrees 1790162427255
+44 verbose cwd C:\Users\Admin\Desktop\nexaservice
+45 verbose os Windows_NT 10.0.26200
+46 verbose node v25.9.0
+47 verbose npm  v11.12.1
+48 verbose exit 1
+49 verbose code 1
+50 error A complete log of this run can be found in: C:\Users\Admin\Desktop\nexaservice\.npm-cache\_logs\2026-09-23T11_20_23_924Z-debug-0.log
