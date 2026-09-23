@@ -1,6 +1,6 @@
 # Testing strategy
 
-Vitest covers authentication, public lead intake, protected lead management, Service management/publication, Testimonial management/publication, and singleton Website Settings. Component and browser suites remain planned.
+Vitest covers authentication, public lead intake, protected lead management, dashboard analytics, Service management/publication, Testimonial management/publication, and singleton Website Settings. Component and browser suites remain planned.
 
 ## Unit tests — Vitest
 
@@ -14,6 +14,8 @@ Current `tests/services` workflow coverage checks ADMIN create/edit/publish/unpu
 
 Current `tests/website-content` workflow coverage checks ADMIN Testimonial create/edit/publication, draft default, invalid content, STAFF/visitor denial, settings validation and ADMIN-only save, public fallback behavior, and published-only homepage content.
 
+Current `tests/dashboard` unit coverage checks status/total counts, current-month boundaries, six chronological months and zero-month filling across a year transition, STAFF/ADMIN admission, unauthenticated denial before queries, and generic database errors. The dashboard is a protected server read; no new public interface is added.
+
 ## Integration tests — Vitest with PostgreSQL
 
 Run `$env:RUN_DATABASE_TESTS = '1'; npm test` in PowerShell with a migrated local PostgreSQL database to include the credential integration test. It creates a random STAFF record inside a transaction, verifies actual Prisma lookup and bcrypt comparison, then rolls the transaction back. This passed against local PostgreSQL on 2026-09-23. An isolated test database lifecycle and a real Auth.js cookie/sign-out browser flow are still pending. Future integration tests should cover lead visibility, notes, assignment, and transactional changes.
@@ -26,6 +28,8 @@ The Service integration test creates a draft inside a PostgreSQL transaction, pu
 
 The website-content integration test creates a Testimonial within a PostgreSQL transaction, verifies publication filtering and edits, then checks SiteSettings upsert at ID 1. It rolls back and verifies any preexisting settings row is unchanged. It does not leave development sample content behind.
 
+The dashboard integration test creates six fictional Leads and an unpublished Service inside a PostgreSQL transaction. It checks count changes against a pre-transaction baseline, UTC month grouping, recent ordering/limit, and historical unpublished Service ranking, then rolls back and confirms the Service is absent. It leaves existing development records untouched.
+
 To repeat the public manual check, start the app locally, submit a fictional enquiry at `/contact#request-quote` using a unique `example.test` email, and confirm the success message. Query that email in the local PostgreSQL `Lead` table and verify `status = NEW`, `assignedUserId IS NULL`, and the chosen `serviceId` (or null). Do not use real customer details for this check.
 
 Then sign in as a provisioned development ADMIN, find that enquiry at `/admin/leads`, open it, update status, add a private note, assign a current staff account, and refresh. Confirm the status, note/author, and assignment persist. Sign out and verify that the list/detail redirect to login. Use only fictional data; the browser workflow has not yet been verified by the automated tests.
@@ -33,6 +37,8 @@ Then sign in as a provisioned development ADMIN, find that enquiry at `/admin/le
 For a Service browser check, sign in as ADMIN, create a test draft at `/admin/services/new`, publish it, inspect `/services` and `/services/[slug]`, submit an enquiry from its quote link, then unpublish it. Confirm its public detail is 404, it disappears from public choices, and the historical Lead still shows its Service. Use a disposable development database or an explicitly approved cleanup plan; Service hard deletion is not offered.
 
 For website content, sign in as ADMIN, create a fictional Testimonial draft, publish it, verify the labeled homepage section, edit it, and unpublish it. At `/admin/settings`, enter fictional business details, save, and verify the public header, footer, contact page, and metadata. Refresh to confirm persistence. Use a disposable development database or restore previously saved settings afterward; signed-in browser verification remains open until credentials are available to the human engineer.
+
+For dashboard verification, sign in as a development ADMIN and compare `/admin` Total Leads with the unfiltered `/admin/leads` count. Submit a fictional public enquiry, refresh, and confirm Total, New, This Month, and Recent Leads change. Change its status to CONTACTED and confirm New decreases and Contacted increases. If linked to a Service, check the Service ranking. The signed-in browser sequence remains unverified until a local session is available; do not use real customer information.
 
 ## Component tests — React Testing Library
 
@@ -51,6 +57,7 @@ Playwright is not configured yet. With an isolated test database, add real sign-
 | Assignment | ADMIN allowed, STAFF denied, valid or cleared assignee. |
 | Service management | ADMIN edits and publication appear publicly; drafts stay private; STAFF writes denied; historical Lead relation survives unpublication. |
 | Website content | ADMIN-only Testimonial and Settings writes, draft publication filtering, singleton settings, safe public fallback. |
+| Dashboard analytics | Authorized all-lead counts, UTC date boundaries, zero months, recent five, unpublished Service associations, safe empty/error states. |
 | Session boundary | Signed-out or expired sessions cannot read or mutate private data. |
 
 CI should run lint, type checking, relevant tests, and a production build once scripts exist. Coverage targets and supported browsers are pending decisions.

@@ -2,7 +2,7 @@
 
 ## Current implementation checkpoint
 
-The public site and responsive dashboard shell are implemented. The database foundation includes local PostgreSQL Compose configuration, Prisma 7.10.0 schema/configuration, an initial SQL migration, and one server-side Client module at `src/server/db/client.ts`. Prisma connects to local PostgreSQL and reports the migration up to date. Staff authentication and role checks are implemented in code; a transactional credential test passes, while a full browser login with a provisioned account is not yet verified. Public lead intake and protected lead management are implemented and tested against PostgreSQL using rolled-back transactions. ADMIN Service and Testimonial management, published-only public reads, and singleton Website Settings are implemented. A fictional public browser enquiry was verified in durable PostgreSQL; signed-in admin browser workflows remain unverified. Staff account management remains a placeholder.
+The public site and responsive dashboard are implemented. The database foundation includes local PostgreSQL Compose configuration, Prisma 7.10.0 schema/configuration, an initial SQL migration, and one server-side Client module at `src/server/db/client.ts`. Prisma connects to local PostgreSQL and reports the migration up to date. Staff authentication and role checks are implemented in code; a transactional credential test passes, while a full browser login with a provisioned account is not yet verified. Public lead intake and protected lead management are implemented and tested against PostgreSQL using rolled-back transactions. The dashboard reads real PostgreSQL aggregations for all-lead counts, recent leads, six UTC calendar months, and Service enquiry ranking. ADMIN Service and Testimonial management, published-only public reads, and singleton Website Settings are implemented. A fictional public browser enquiry was verified in durable PostgreSQL; signed-in admin browser workflows remain unverified. Staff account management remains a placeholder.
 
 ## System overview and approved stack
 
@@ -34,6 +34,7 @@ NextAuth.js 4.24.15 uses a credentials provider and the existing Prisma `User` t
 4. **Service content edit (implemented):** ADMIN page/Server Action -> fresh User and ADMIN check -> Zod validation and slug conflict check -> Service repository write -> revalidate admin list, public listing/detail, and contact form. Public repository reads use `published = true`; old Leads retain their Service relation when a Service becomes unpublished.
 5. **Testimonial content edit (implemented):** ADMIN page/Server Action -> fresh User and ADMIN check -> Zod validation -> repository write -> revalidate admin list and homepage. Public reads explicitly filter `published = true`.
 6. **Website settings edit (implemented):** ADMIN form/Server Action -> fresh User and ADMIN check -> Zod validation -> repository upsert at `id = 1` -> revalidate public layout. Public layout, metadata, and pages share a request-cached settings read; a missing row returns a name-only fallback without writing a record.
+7. **Dashboard analytics (implemented):** `/admin` -> fresh STAFF/ADMIN check -> dashboard business service defines a six-month UTC window and fills zero months -> repository uses database status grouping, bounded count/date queries, five selected recent rows, and relation counts for up to five Services. It includes unpublished Services for historical reporting. No public analytics endpoint or full-table Lead fetch exists.
 
 ## Proposed application structure
 
@@ -50,6 +51,8 @@ src/server/db/repositories/        public lead-intake Prisma queries
 src/features/enquiry/              validation and creation rules
 src/components/public/enquiry-form.tsx  quote form UI
 src/features/leads/                protected lead validation and business rules
+src/features/dashboard/            dashboard metric definitions and UTC window
+src/server/db/repositories/dashboard-analytics.ts  bounded Lead and Service aggregations
 src/features/services/             Service validation and management rules
 src/features/website-content/      Testimonial and Settings validation/business rules
 src/server/db/repositories/website-content.ts  published and admin content reads/writes

@@ -1,6 +1,6 @@
 # Planned application interfaces
 
-This is primarily an interface plan. Staff sign-in/sign-out uses the Auth.js HTTP handler at `/api/auth/[...nextauth]`. Public quote intake is implemented as one Server Action on `/contact#request-quote`; protected business operations below remain planned. Add Route Handlers only when an explicit HTTP endpoint is useful.
+This is primarily an interface plan. Staff sign-in/sign-out uses the Auth.js HTTP handler at `/api/auth/[...nextauth]`. Public quote intake and protected content mutations use Server Actions. Add Route Handlers only when an explicit HTTP endpoint is useful.
 
 ## Public and protected operations
 
@@ -10,7 +10,7 @@ This is primarily an interface plan. Staff sign-in/sign-out uses the Auth.js HTT
 | Submit contact/enquiry | Public | Implemented `/contact#request-quote` Server Action | Zod validation, honeypot, optional published Service, `NEW` unassigned Lead, safe response; no account required. |
 | Sign in/out | Staff | Implemented Auth.js credentials handler and `/admin/login` UI | Email/password against User; no public self-registration. Real database flow remains unverified here. |
 | List/search/filter leads; read detail | STAFF, ADMIN | Implemented `/admin/leads` and `/admin/leads/[id]` server reads | Fresh session/User check; all leads visible in this initial workflow. Assigned-only view remains planned. |
-| Read dashboard metrics | STAFF, ADMIN | Protected server read | Scope metrics to authorized leads. |
+| Read dashboard metrics | STAFF, ADMIN | Implemented protected `/admin` server read | All-lead status/current-UTC-month counts, five recent Leads, six UTC months, and up to five Services ranked by linked enquiries. No public endpoint. |
 | Update status; add internal note | STAFF, ADMIN | Implemented lead-detail Server Actions | Verify current staff identity; validate status/content; derive note author from session. |
 | Assign/unassign lead | ADMIN | Implemented lead-detail Server Action | Check ADMIN on the server; validate current User or clear assignment. |
 | List/create/edit/publish/unpublish Services | ADMIN | Implemented `/admin/services` pages and Server Actions | Fresh ADMIN check for each read/write; Zod input validation; no hard deletion. |

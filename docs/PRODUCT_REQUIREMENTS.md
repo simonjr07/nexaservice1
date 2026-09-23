@@ -30,6 +30,7 @@ A service business needs a credible public presence that converts interest into 
 - Public routes never expose lead data or internal notes. Only ADMIN manages staff accounts and changes public service content. All authorization is enforced server-side.
 - Service management supports ADMIN creation, editing, publication, and unpublication. Only published Services appear in public listings and details or can be selected for new enquiries. Unpublishing keeps historical Lead associations.
 - ADMIN manages Testimonial drafts/publication and one set of public business name/contact settings. Only published Testimonials appear publicly, labeled as fictional portfolio examples. Missing settings use a non-sensitive brand fallback and no invented contact details.
+- The protected dashboard shows all-lead counts by current status, leads created this UTC month, five recent leads, a six-calendar-month activity view, and up to five Services ranked by linked enquiry count (including unpublished Services). These operational counts are not revenue or confirmed customers. The current STAFF visibility policy permits all-lead analytics; narrower visibility is pending review.
 
 ## Non-functional requirements
 
@@ -46,7 +47,7 @@ A service business needs a credible public presence that converts interest into 
 | US-01 | Visitor explores the business. | Homepage, services list/detail, company information, and testimonials are publicly reachable and usable. |
 | US-02 | Visitor submits an enquiry. | Valid input creates one `NEW` lead; service association may be absent; invalid input gets useful feedback and the response reveals no internal data. |
 | US-03 | STAFF triages leads. | A signed-in staff user can find permitted leads, view details, change status, and add a private note; unauthenticated access is denied. |
-| US-04 | STAFF sees assigned work and metrics. | Assigned view and metrics reflect only leads the user may see; metric definitions are documented before implementation. |
+| US-04 | STAFF sees assigned work and metrics. | The dashboard shows metrics for all Leads currently visible to STAFF, with documented UTC month and status definitions. An assigned-only view remains planned. |
 | US-05 | ADMIN assigns work. | ADMIN can assign or clear an eligible assignee; STAFF cannot perform the operation. |
 | US-06 | ADMIN manages content and people. | ADMIN can manage services, testimonials, staff, and selected settings; STAFF mutations are denied on the server. |
 | US-07 | Visitor information stays private. | Public routes and responses reveal no leads, notes, assignments, or staff account data. |

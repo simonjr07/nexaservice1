@@ -19,6 +19,8 @@ Prisma subsequently connected to local PostgreSQL and reported the migration up 
 
 **Website-content checkpoint (2026-09-23):** The Testimonial portion of M02 and Website Settings portion of M03 are implemented: ADMIN create/edit/publish/unpublish for fictional sample testimonials, published-only homepage display, ADMIN singleton settings save, and public name/contact display with a safe missing-row fallback. Unit and rollback-based PostgreSQL tests cover the rules. Signed-in ADMIN browser verification remains open. Staff account management remains planned.
 
+**Dashboard-analytics checkpoint (2026-09-23):** Task #10's `/admin` overview now shows database-backed all-lead/status/current-UTC-month counts, five recent Leads, six UTC calendar months including zero months, and up to five Services by linked enquiry count including unpublished Services. STAFF and ADMIN may view it under the current all-leads policy. Unit and rollback-based PostgreSQL tests pass; signed-in browser verification remains open. D03's assigned-only view is still planned, so D03 as a whole remains in progress.
+
 | ID | Phase and task | Depends on | Completion criteria |
 | --- | --- | --- | --- |
 | P01 | Resolve content, forms, lead visibility, status rules, and settings decisions | — | Decisions and acceptance criteria recorded. |
@@ -32,7 +34,7 @@ Prisma subsequently connected to local PostgreSQL and reported the migration up 
 | W02 (complete) | Build contact/enquiry form and creation service | W01, F04 | Valid browser submission and database record verified; validation and abuse handling pass tests. |
 | D01 (in progress) | Build dashboard shell and lead list/search/filter | A02, W02 | Protected list and filters work in database tests; browser verification pending. |
 | D02 (in progress) | Build lead detail, status changes, and internal notes | D01 | Detail and mutations work in database tests; browser verification pending. |
-| D03 | Build assigned view and relevant metrics | D02, P01 | Views use authorized scope and documented metric definitions. |
+| D03 (metrics implemented; assigned view planned) | Build assigned view and relevant metrics | D02, P01 | Dashboard metrics use current authorized all-leads scope and documented UTC/count definitions; assigned-only view and browser verification remain open. |
 | M01 (in progress) | Build ADMIN assignment | D02, A02 | ADMIN/STAFF role checks and persistence pass tests; browser verification pending. |
 | M02 (in progress) | Build ADMIN service and testimonial management | W01, A02 | Service and Testimonial code/tests are implemented; signed-in ADMIN browser verification remains. |
 | M03 (Settings in progress; Staff planned) | Build ADMIN staff and selected settings management | A02, P01 | Singleton Settings code/tests are implemented; browser verification and staff management remain. |

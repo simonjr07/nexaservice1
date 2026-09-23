@@ -33,6 +33,10 @@ The initial PostgreSQL schema is defined in `prisma/schema.prisma`. Prisma 7.10.
 
 Unique indexes on User email and Service slug come from their unique constraints. No text-search index is added before search behavior is decided.
 
+## Dashboard aggregation reads
+
+The protected dashboard groups Leads by current `status`, counts Leads created in the current UTC month, and groups the last six UTC calendar months by `createdAt` year/month. The business layer supplies zero-count months and handles year transitions. A bounded query selects the five most recent Leads with only their display fields and optional Service name. Service relation counts rank up to five Services with at least one linked Lead, including unpublished Services; general enquiries without `serviceId` do not enter that ranking. These queries use the existing schema and indexes. No Lead records are loaded wholesale to calculate totals. Counts describe enquiries, not revenue or confirmed customers.
+
 ## Migration and development data
 
 Apply the checked-in migration to a new **local development** database using the commands in [Deployment](DEPLOYMENT.md). Do not run reset or volume-removal commands against data you need to keep. This task does not seed records. A later seed can add clearly fictional, non-sensitive services and testimonials after content is approved. The explicit development-only command in [Security](SECURITY.md#development-admin-provisioning) hashes a locally supplied password and creates an ADMIN; it has not been run against a live database here.
