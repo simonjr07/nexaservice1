@@ -2,7 +2,7 @@
 
 ## Current implementation checkpoint
 
-The repository currently has the Next.js starter UI plus a **database foundation only**: local PostgreSQL Compose configuration, Prisma 7.10.0 schema/configuration, an unapplied initial SQL migration, generated Client output, and a single server-side Client module at `src/server/db/client.ts`. No page imports that module, and no authentication, lead submission, dashboard operation, or database-backed rendering exists. The previously planned application shell is not present in this checkout. The migration still needs a running local PostgreSQL instance before the database foundation can be called operational.
+The public site and responsive dashboard shell are implemented. The database foundation includes local PostgreSQL Compose configuration, Prisma 7.10.0 schema/configuration, an initial SQL migration, and one server-side Client module at `src/server/db/client.ts`. Prisma connects to local PostgreSQL and reports the migration up to date. Staff authentication and role checks are implemented in code; a transactional credential test passes, while a full browser login with a provisioned account is not yet verified. Lead submission and operational dashboard features are not implemented.
 
 ## System overview and approved stack
 
@@ -10,7 +10,7 @@ NexaService is one Next.js App Router full-stack application. React and Tailwind
 
 ## Public and private boundaries
 
-- **Current shell exception:** `/admin` is temporarily a public, non-sensitive visual placeholder. It contains no customer data, metrics, or administrative operations. Authentication and server-side authorization must be implemented before adding protected dashboard functionality. The private dashboard rules below describe the intended implementation.
+- `/admin` and its child placeholders now use a server-checked staff layout. `/admin/login` stays public. Placeholders contain no lead data, metrics, or administrative operations.
 - Public routes render approved site content and accept contact/enquiry submissions. Public visitors have no account or access to leads, notes, assignments, and dashboard data.
 - Dashboard routes require a verified staff session. Only ADMIN and STAFF exist as internal roles.
 - Route/layout checks help navigation, but each private read and mutation independently checks identity, role, and resource scope on the server.
@@ -24,7 +24,7 @@ The centralized Prisma module uses the PostgreSQL driver adapter required by Pri
 
 ## Authentication and authorization
 
-Auth.js will establish staff sessions; public registration is absent. The server enforces ADMIN-only assignment and staff/content/settings management. The exact STAFF visibility rule for unassigned or other staff members' leads is pending. Every action and handler must re-check authorization even if its form was rendered on a protected page.
+NextAuth.js 4.24.15 uses a credentials provider and the existing Prisma `User` table. Credentials are validated with Zod, email is trimmed/lowercased, and bcryptjs compares password hashes. Auth.js issues an eight-hour JWT session in its HTTP-only cookie. The JWT/session expose only user ID, name, email, and role; no password hash. `getServerSession` plus a fresh database lookup in `src/server/auth/authorization.ts` checks that the user still exists and uses the current role. The protected route group redirects visitors to `/admin/login`; ADMIN-only placeholder routes reject STAFF. Future business reads and mutations must call authorization helpers independently. No public registration exists. The exact STAFF lead visibility rule remains pending.
 
 ## Request flows
 
@@ -35,19 +35,19 @@ Auth.js will establish staff sessions; public registration is absent. The server
 
 ## Proposed application structure
 
-This is a proposal, not an existing tree or final filename contract:
+Current relevant structure (future feature modules may be added as planned):
 
 ```text
-src/app/(public)/          public pages
-src/app/(auth)/            sign-in page
-src/app/dashboard/         protected pages
-src/app/api/               explicit Route Handlers only
-src/features/              feature use cases, validation, UI
-src/server/auth/           session and policy helpers
-src/server/db/             Prisma client and repositories
-src/components/            shared presentation components
-prisma/                    future schema and migrations
-tests/                     cross-feature tests
+src/app/(public)/                    public pages
+src/app/admin/login/                public staff sign-in page
+src/app/admin/(protected)/          authenticated workspace shell/placeholders
+src/app/api/auth/[...nextauth]/     Auth.js HTTP handler
+src/server/auth/                   credentials, session options, authorization
+src/server/db/                     centralized Prisma client
+src/components/dashboard/          dashboard UI and login/logout controls
+scripts/provision-admin.ts         explicit development administrator creation
+prisma/                            schema and migrations
+tests/auth/                        current authentication tests
 ```
 
-The installed Next.js App Router guide confirms `src/app`, route groups, `page.tsx`, and `route.ts` conventions. The exact folders may be refined during implementation without changing the approved architecture.
+The App Router route group keeps the login page outside the protected layout without changing `/admin` URLs. The Auth.js handler is the only implemented HTTP endpoint.

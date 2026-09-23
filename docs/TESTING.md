@@ -1,22 +1,22 @@
 # Testing strategy
 
-Testing will be added during implementation. No test suite is claimed to exist today.
+Vitest is configured for focused authentication tests. Other feature, component, database integration, and browser suites remain planned.
 
 ## Unit tests — Vitest
 
-Test pure validation and business rules: `NEW` on lead creation, status values/transitions once approved, roles and permissions, optional service/assignee handling, search/filter parsing, and metric calculations. Keep these independent of rendering and the database.
+Current `tests/auth` coverage checks valid credentials, incorrect and unknown credentials, email normalization, malformed input, minimal session output, visitor redirect, STAFF/ADMIN dashboard admission, STAFF denial of ADMIN access, and deleted-account denial. Run `npm test`. These default tests mock the database. Future pure rule tests should cover `NEW` on lead creation, status transitions once approved, filters, and metrics.
 
 ## Integration tests — Vitest with PostgreSQL
 
-Exercise server services and Prisma repositories against an isolated test database. Verify relations, constraints, authorization, lead visibility, notes, assignment, and transactional changes. The test database lifecycle is pending.
+Run `$env:RUN_DATABASE_TESTS = '1'; npm test` in PowerShell with a migrated local PostgreSQL database to include the credential integration test. It creates a random STAFF record inside a transaction, verifies actual Prisma lookup and bcrypt comparison, then rolls the transaction back. This passed against local PostgreSQL on 2026-09-23. An isolated test database lifecycle and a real Auth.js cookie/sign-out browser flow are still pending. Future integration tests should cover lead visibility, notes, assignment, and transactional changes.
 
 ## Component tests — React Testing Library
 
-Check accessible forms, validation feedback, loading/success/error states, filters, status controls, and role-sensitive navigation. Component tests do not replace server authorization tests.
+React Testing Library is not configured yet. Add login form feedback/loading and role-sensitive navigation component tests when this layer is introduced. Component tests do not replace server authorization tests.
 
 ## End-to-end tests — Playwright
 
-Use seeded test data to cover public discovery, valid/invalid enquiry, staff sign-in and triage, note creation, administrator assignment and content management, and denied visitor/STAFF access. Run critical smoke flows in CI; broaden browser coverage as the interface stabilizes.
+Playwright is not configured yet. With an isolated test database, add real sign-in, sign-out, redirect, STAFF/ADMIN route, and visitor-denial browser coverage, then later public enquiry and management workflows.
 
 ## Critical workflow matrix
 

@@ -19,3 +19,9 @@
 ## ADR-005: Prisma as ORM
 
 **Status:** Approved. **Context:** The relational model needs typed data access and migration management. **Decision:** Use Prisma for PostgreSQL access. **Consequences:** Centralize Prisma in server-only data-access code and review schema migrations.
+
+## Authentication implementation choices for review
+
+The requested authentication task uses stable NextAuth.js 4.24.15 because its published peer range supports the installed Next.js 16 and React 19. Credentials authenticate against the existing `User` table with no Auth.js adapter or extra auth tables. Auth.js uses an eight-hour JWT cookie session; protected server requests re-read the user to reflect deletion and current role. New development administrator passwords use bcrypt cost 12. These are implementation choices under the approved Auth.js/Prisma architecture, pending human review rather than new approved ADRs.
+
+Still requiring approval before production: sign-in rate-limit mechanism/threshold, production administrator provisioning and recovery, and account disablement policy. Lead visibility and other product decisions remain pending as recorded in the product/security documents.

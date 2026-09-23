@@ -1,18 +1,19 @@
 import Link from "next/link";
+import type { Role } from "@/generated/prisma/client";
 
 const items = [
-  { href: "/admin", label: "Overview", mark: "◫" },
-  { href: "/admin/leads", label: "Leads", mark: "◎" },
-  { href: "/admin/services", label: "Services", mark: "◇" },
-  { href: "/admin/testimonials", label: "Testimonials", mark: "❝" },
-  { href: "/admin/users", label: "Users", mark: "♧" },
-  { href: "/admin/settings", label: "Settings", mark: "⚙" },
+  { href: "/admin", label: "Overview", mark: "◫", adminOnly: false },
+  { href: "/admin/leads", label: "Leads", mark: "◎", adminOnly: false },
+  { href: "/admin/services", label: "Services", mark: "◇", adminOnly: true },
+  { href: "/admin/testimonials", label: "Testimonials", mark: "❝", adminOnly: true },
+  { href: "/admin/users", label: "Users", mark: "♧", adminOnly: true },
+  { href: "/admin/settings", label: "Settings", mark: "⚙", adminOnly: true },
 ];
 
-export function DashboardNav({ mobile = false }: { mobile?: boolean }) {
+export function DashboardNav({ mobile = false, role }: { mobile?: boolean; role: Role }) {
   return (
     <nav aria-label="Dashboard navigation" className={mobile ? "grid grid-cols-3 gap-1" : "space-y-1"}>
-      {items.map((item) => (
+      {items.filter((item) => !item.adminOnly || role === "ADMIN").map((item) => (
         <Link
           key={item.href}
           href={item.href}
