@@ -1,18 +1,21 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { requireStaff } from "@/server/auth/authorization";
 
 const sections: Record<string, { title: string; description: string }> = {
   leads: { title: "Leads", description: "Enquiries, assignments, status changes, and internal notes will live here after the secure workflow is built." },
-  services: { title: "Services", description: "Administrators will be able to manage public service content here after authentication and authorization are in place." },
+  services: { title: "Services", description: "Administrators will be able to manage public service content here in a later task." },
   testimonials: { title: "Testimonials", description: "This area is reserved for future management of approved public testimonials." },
-  users: { title: "Users", description: "Staff account management will be administrator-only once the secure dashboard is implemented." },
+  users: { title: "Users", description: "Staff account management is planned as an administrator-only feature." },
   settings: { title: "Settings", description: "Selected website settings will be managed here by administrators in a later task." },
 };
 
 export default async function AdminSectionPage({ params }: { params: Promise<{ section: string }> }) {
+  const user = await requireStaff();
   const { section } = await params;
   const content = sections[section];
   if (!content) notFound();
+  if (section !== "leads" && user.role !== "ADMIN") notFound();
 
   return (
     <>
@@ -23,7 +26,7 @@ export default async function AdminSectionPage({ params }: { params: Promise<{ s
         <span className="mt-8 rounded-full bg-[#eaf0e8] px-3 py-1 text-xs font-semibold text-sea">Coming later</span>
         <h2 className="mt-4 text-2xl font-semibold tracking-[-0.04em]">{content.title} workspace is on the way.</h2>
         <p className="mt-3 max-w-lg text-sm leading-7 text-muted">{content.description}</p>
-        <p className="mt-4 max-w-lg text-sm leading-7 text-muted">This is a public visual placeholder. It contains no live data or working administrative controls.</p>
+        <p className="mt-4 max-w-lg text-sm leading-7 text-muted">This is a protected visual placeholder. It contains no live business data or working administrative controls.</p>
         <Link href="/admin" className="mt-8 inline-flex min-h-11 items-center rounded-full bg-deep px-5 py-2.5 text-sm font-semibold text-white hover:bg-sea">Back to overview</Link>
       </div>
     </>

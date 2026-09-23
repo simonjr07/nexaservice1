@@ -1,6 +1,6 @@
 # Planned application interfaces
 
-This is an interface plan, not an implemented API contract. Form-driven mutations should use Server Actions where appropriate. Add Route Handlers only when an explicit HTTP endpoint is useful. Exact URLs, payload schemas, and pagination conventions are pending.
+This is primarily an interface plan, not an implemented business API contract. Staff sign-in/sign-out uses the Auth.js HTTP handler at `/api/auth/[...nextauth]` and the `/admin/login` page; business operations below remain planned. Form-driven business mutations should use Server Actions where appropriate. Add Route Handlers only when an explicit HTTP endpoint is useful. Exact business URLs, payload schemas, and pagination conventions are pending.
 
 ## Public and protected operations
 
@@ -8,7 +8,7 @@ This is an interface plan, not an implemented API contract. Form-driven mutation
 | --- | --- | --- | --- |
 | Read homepage, services, service detail, company information, testimonials | Public | App Router pages/server reads | Return public content only. |
 | Submit contact/enquiry | Public | Server Action; Route Handler only if needed | Validate and apply abuse controls; create `NEW` lead. |
-| Sign in/out | Staff | Auth.js integration | No public self-registration. |
+| Sign in/out | Staff | Implemented Auth.js credentials handler and `/admin/login` UI | Email/password against User; no public self-registration. Real database flow remains unverified here. |
 | List/search/filter leads; read detail and assigned leads | STAFF, ADMIN | Protected server reads | Verify session and lead visibility. |
 | Read dashboard metrics | STAFF, ADMIN | Protected server read | Scope metrics to authorized leads. |
 | Update status; add internal note | STAFF, ADMIN | Server Actions | Verify session and per-lead access. |
@@ -31,4 +31,4 @@ This is an interface plan, not an implemented API contract. Form-driven mutation
 
 ## Pending interface decisions
 
-One or two public submission Actions; whether any explicit HTTP endpoint is needed beyond Auth.js integration; URL names; search/pagination semantics; status transition rules; and the precise result/error shape.
+One or two public submission Actions; whether any explicit HTTP endpoint is needed beyond the implemented Auth.js handler; URL names; search/pagination semantics; status transition rules; and the precise result/error shape.
