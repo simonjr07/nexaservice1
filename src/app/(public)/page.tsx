@@ -1,10 +1,14 @@
 import Link from "next/link";
 import { connection } from "next/server";
 import { serviceRepository } from "@/server/db/repositories/services";
+import { getPublicSettings, listPublishedTestimonials } from "@/features/website-content/manage-content";
 
 export default async function Home() {
   await connection();
-  const services = (await serviceRepository.listPublished()).slice(0, 3);
+  const [allServices, testimonials, settings] = await Promise.all([
+    serviceRepository.listPublished(), listPublishedTestimonials(), getPublicSettings(),
+  ]);
+  const services = allServices.slice(0, 3);
   return (
     <>
       <section className="relative overflow-hidden bg-deep text-white">
@@ -18,7 +22,7 @@ export default async function Home() {
               Good work starts with <span className="text-accent">better care.</span>
             </h1>
             <p className="mt-7 max-w-xl text-base leading-8 text-white/70 sm:text-lg">
-              From the spaces you use every day to the projects you are ready to move forward, NexaService brings clear communication and practical support to the work that matters.
+              From the spaces you use every day to the projects you are ready to move forward, {settings.businessName} brings clear communication and practical support to the work that matters.
             </p>
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
               <Link href="/contact#request-quote" className="inline-flex min-h-12 items-center justify-center gap-5 rounded-full bg-accent px-7 py-3.5 text-sm font-semibold text-deep transition-colors hover:bg-white">
@@ -37,7 +41,7 @@ export default async function Home() {
             <div className="absolute -inset-8 rounded-full bg-sea/30 blur-3xl" />
             <div className="relative overflow-hidden rounded-[2rem] border border-white/20 bg-[#1d4149] p-5 shadow-2xl shadow-black/20 sm:p-8">
               <div className="flex items-center justify-between border-b border-white/15 pb-5 text-xs font-semibold uppercase tracking-[0.2em] text-white/55">
-                <span>NexaService approach</span>
+                <span>{settings.businessName} approach</span>
                 <span className="flex gap-1.5"><i className="h-2 w-2 rounded-full bg-accent" /><i className="h-2 w-2 rounded-full bg-white/20" /><i className="h-2 w-2 rounded-full bg-white/20" /></span>
               </div>
               <div className="relative mt-8 rounded-[1.5rem] bg-paper p-6 text-ink sm:p-8">
@@ -87,7 +91,7 @@ export default async function Home() {
       <section className="bg-[#eaf0e8] py-20 md:py-28" aria-labelledby="why-heading">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-24 lg:px-12">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-sea">Why NexaService</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-sea">Why {settings.businessName}</p>
             <h2 id="why-heading" className="mt-4 max-w-md text-4xl font-semibold tracking-[-0.055em] sm:text-5xl">A more considered way to get things done.</h2>
             <p className="mt-6 max-w-md text-base leading-8 text-muted">Good service should feel straightforward. We put care into the details, keep the conversation clear, and make room for the work to be done well.</p>
           </div>
@@ -105,6 +109,13 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {testimonials.length > 0 && <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 md:py-28 lg:px-12" aria-labelledby="testimonials-heading">
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-sea">Fictional portfolio examples</p>
+        <h2 id="testimonials-heading" className="mt-4 text-4xl font-semibold tracking-[-0.055em] sm:text-5xl">What a client might say.</h2>
+        <p className="mt-4 max-w-2xl text-sm leading-7 text-muted">These sample testimonials illustrate the portfolio concept. They are not real customer endorsements.</p>
+        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">{testimonials.map((item) => <figure key={item.id} className="flex flex-col rounded-3xl border border-line bg-white p-8"><blockquote className="flex-1 whitespace-pre-wrap break-words text-base leading-8 text-ink">“{item.content}”</blockquote><figcaption className="mt-8 border-t border-line pt-5 text-sm"><span className="font-semibold">{item.customerName}</span>{item.company && <span className="mt-1 block text-muted">{item.company}</span>}</figcaption></figure>)}</div>
+      </section>}
 
       <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 md:py-28 lg:px-12" aria-labelledby="process-heading">
         <div className="max-w-xl">
@@ -128,7 +139,7 @@ export default async function Home() {
 
       <section className="px-5 pb-20 sm:px-8 lg:px-12">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 rounded-[2rem] bg-sea px-8 py-12 text-white sm:px-12 md:flex-row md:items-center md:py-16">
-          <div><p className="text-xs font-semibold uppercase tracking-[0.25em] text-accent">Ready when you are</p><h2 className="mt-4 max-w-xl text-3xl font-semibold tracking-[-0.05em] sm:text-4xl">Let’s make the next step easier.</h2><p className="mt-4 max-w-lg text-sm leading-7 text-white/75">Explore how NexaService could support your space or project.</p></div>
+          <div><p className="text-xs font-semibold uppercase tracking-[0.25em] text-accent">Ready when you are</p><h2 className="mt-4 max-w-xl text-3xl font-semibold tracking-[-0.05em] sm:text-4xl">Let’s make the next step easier.</h2><p className="mt-4 max-w-lg text-sm leading-7 text-white/75">Explore how {settings.businessName} could support your space or project.</p></div>
           <Link href="/contact#request-quote" className="inline-flex min-h-12 shrink-0 items-center justify-center gap-5 rounded-full bg-accent px-6 py-3.5 text-sm font-semibold text-deep hover:bg-white">Request a quote <span aria-hidden="true">↗</span></Link>
         </div>
       </section>

@@ -13,7 +13,7 @@ const initialValues: Values = {
 
 const inputClass = "mt-2 min-h-12 w-full rounded-xl border border-line bg-white px-4 py-3 text-ink outline-none transition-colors placeholder:text-muted/60 focus-visible:border-sea focus-visible:ring-2 focus-visible:ring-sea/20 disabled:opacity-60";
 
-export function EnquiryForm({ services, initialServiceId = "" }: { services: { id: string; name: string }[]; initialServiceId?: string }) {
+export function EnquiryForm({ services, initialServiceId = "", businessName = "NexaService" }: { services: { id: string; name: string }[]; initialServiceId?: string; businessName?: string }) {
   const [state, formAction, pending] = useActionState(submitEnquiry, initialEnquiryState);
   const [values, setValues] = useState<Values>(() => ({ ...initialValues, serviceId: initialServiceId }));
   const submitting = useRef(false);
@@ -37,7 +37,7 @@ export function EnquiryForm({ services, initialServiceId = "" }: { services: { i
       <div role="status" className="rounded-3xl border border-[#d7e4d2] bg-[#eaf0e8] p-8 sm:p-10">
         <span aria-hidden="true" className="grid h-12 w-12 place-items-center rounded-full bg-sea text-xl text-white">✓</span>
         <h3 className="mt-6 text-2xl font-semibold tracking-[-0.04em]">Thanks for reaching out.</h3>
-        <p className="mt-3 text-sm leading-7 text-muted">Your enquiry has been received. The NexaService team can follow up using the details you provided.</p>
+        <p className="mt-3 text-sm leading-7 text-muted">Your enquiry has been received. The {businessName} team can follow up using the details you provided.</p>
         <Link href="/contact#request-quote" className="mt-6 inline-block text-sm font-semibold text-sea underline-offset-4 hover:underline">Send another enquiry ↗</Link>
       </div>
     );

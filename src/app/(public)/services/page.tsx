@@ -2,21 +2,22 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
 import { serviceRepository } from "@/server/db/repositories/services";
+import { getPublicSettings } from "@/features/website-content/manage-content";
 
 export const metadata: Metadata = {
   title: "Services",
-  description: "Explore the published services offered by NexaService and start a conversation about your needs.",
+  description: "Explore published services and start a conversation about your needs.",
 };
 
 export default async function ServicesPage() {
   await connection();
-  const services = await serviceRepository.listPublished();
+  const [services, settings] = await Promise.all([serviceRepository.listPublished(), getPublicSettings()]);
   return <>
     <section className="bg-deep px-5 py-20 text-white sm:px-8 md:py-28 lg:px-12">
       <div className="mx-auto max-w-7xl">
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-accent">Our services</p>
         <h1 className="mt-5 max-w-3xl text-5xl font-semibold tracking-[-0.06em] sm:text-6xl">The right kind of support for what comes next.</h1>
-        <p className="mt-7 max-w-2xl text-base leading-8 text-white/70">Explore how NexaService can support your space or project. Each service begins with a conversation about what you need.</p>
+        <p className="mt-7 max-w-2xl text-base leading-8 text-white/70">Explore how {settings.businessName} can support your space or project. Each service begins with a conversation about what you need.</p>
       </div>
     </section>
     <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-12" aria-label="Available services">

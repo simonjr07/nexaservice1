@@ -10,8 +10,8 @@ The initial PostgreSQL schema is defined in `prisma/schema.prisma`. Prisma 7.10.
 | Service | UUID `id`, `name`, unique `slug`, `shortDescription`, `description`, `published` (false by default), timestamps | May be referenced by Leads. |
 | Lead | UUID `id`, `name`, `email`, optional `phone` and `company`, `message`, `status` (NEW by default), optional `serviceId` and `assignedUserId`, timestamps | Optional Service and assigned User; many LeadNotes. |
 | LeadNote | UUID `id`, `content`, `leadId`, `authorId`, timestamps | Requires one Lead and one User author. Internal only in future application logic. |
-| Testimonial | UUID `id`, `customerName`, optional `company`, `content`, `published` (false by default), timestamps | No foreign keys. |
-| SiteSettings | integer `id` (default 1), `businessName`, `email`, `phone`, `address`, `updatedAt` | One effective single-business record; none is seeded. |
+| Testimonial | UUID `id`, `customerName`, optional `company`, `content`, `published` (false by default), timestamps | No foreign keys. ADMIN create/edit/publication; public reads filter `published = true`. |
+| SiteSettings | integer `id` (default 1), `businessName`, `email`, `phone`, `address`, `updatedAt` | One effective single-business record, initialized by explicit ADMIN save; none is seeded. |
 
 `LeadStatus` is `NEW`, `CONTACTED`, `QUALIFIED`, `WON`, or `LOST`. `Role` is `ADMIN` or `STAFF`. Optional fields are limited to the approved optional contact/context relationships and testimonial company.
 
@@ -19,7 +19,7 @@ The initial PostgreSQL schema is defined in `prisma/schema.prisma`. Prisma 7.10.
 
 - Primary keys and foreign keys are in the migration. `User.email` and `Service.slug` are unique. Lead status has a database default of `NEW`.
 - Every foreign key uses `ON DELETE RESTRICT`: deleting a Service, assigned User, Lead, or note author while referenced is blocked. This protects lead history and internal notes from cascade deletion. A future archive/deactivation policy is still needed.
-- The migration adds a PostgreSQL check requiring `SiteSettings.id = 1`. Combined with the primary key, at most one settings row can exist. Future application code should read/upsert ID 1; it must not assume the row already exists.
+- The migration adds a PostgreSQL check requiring `SiteSettings.id = 1`. Combined with the primary key, at most one settings row can exist. The settings repository reads/upserts ID 1; public reads never initialize or overwrite the row. If absent, the UI uses `NexaService` and omits email/phone/address.
 - Prisma generates UUID values and `updatedAt` values through the Client. Raw SQL inserts must supply values where the migration has no database default.
 - Unique email/slug comparisons are PostgreSQL case-sensitive. Authentication and development provisioning trim/lowercase staff emails before lookup/storage; this does not enforce case-insensitive uniqueness for rows inserted by other means. Service management trims and lowercases slugs, turns whitespace into hyphens, validates their shape, and handles unique constraint conflicts. Direct database writes must obey the same convention.
 

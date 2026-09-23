@@ -8,11 +8,11 @@ const links = [
   { href: "/contact", label: "Contact" },
 ];
 
-export function SiteHeader() {
+export function SiteHeader({ businessName }: { businessName: string }) {
   return (
     <header className="relative z-20 border-b border-line bg-paper/95">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-5 sm:px-8 lg:px-12">
-        <Brand />
+        <Brand businessName={businessName} />
         <nav aria-label="Main navigation" className="hidden items-center gap-8 md:flex">
           {links.map((link) => (
             <Link

@@ -21,8 +21,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div className="mt-14 px-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/35">Workspace</div>
         <div className="mt-4"><DashboardNav role={user.role} /></div>
         <div className="mt-auto rounded-2xl border border-white/15 bg-white/5 p-4">
-          <span className="inline-flex rounded-full bg-accent/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-accent">Lead inbox available</span>
-          <p className="mt-3 text-xs leading-6 text-white/60">Work with enquiries in Leads. Other workspace areas are planned.</p>
+          <span className="inline-flex rounded-full bg-accent/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-accent">Workspace tools</span>
+          <p className="mt-3 text-xs leading-6 text-white/60">Work with enquiries in Leads. Administrators can manage public content and business details.</p>
           <Link href="/" className="mt-4 inline-block text-xs font-semibold text-accent hover:underline">View public site ↗</Link>
         </div>
       </aside>

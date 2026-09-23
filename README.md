@@ -6,11 +6,11 @@ Visitors will browse services, company information, and testimonials, then conta
 
 ## Current status
 
-The responsive public site and dashboard shell are implemented. Staff credentials authentication, role checks, login, logout, and a development-only administrator command are implemented in code. The public quote form at `/contact#request-quote` creates leads through server validation and Prisma; a fictional browser submission and durable PostgreSQL record were verified locally. The protected `/admin/leads` inbox lists and filters real leads; detail pages support status changes, private notes, and ADMIN-only assignment. ADMIN Service management and database-backed public service list/detail pages are implemented; unpublished Services are excluded from public reads and new enquiries. PostgreSQL transaction tests cover these workflows, while the administrator browser workflow remains unverified. Other dashboard areas, CI, and production deployment remain planned.
+The responsive public site and dashboard shell are implemented. Staff credentials authentication, role checks, login, logout, and a development-only administrator command are implemented in code. The public quote form at `/contact#request-quote` creates leads through server validation and Prisma; a fictional browser submission and durable PostgreSQL record were verified locally. The protected `/admin/leads` inbox lists and filters real leads; detail pages support status changes, private notes, and ADMIN-only assignment. ADMIN Service and Testimonial management, published-only public content, and single-business Website Settings are implemented. PostgreSQL transaction tests cover these workflows, while signed-in administrator browser verification remains open. Staff account management, CI, and production deployment remain planned.
 
 ## Stack
 
-Next.js App Router, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, Auth.js/NextAuth.js, and bcryptjs are in use. Vitest covers authentication, public enquiry intake, lead management, and Service publication. React Hook Form, React Testing Library, Playwright, GitHub Actions, Vercel, and hosted PostgreSQL are planned for later work.
+Next.js App Router, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, Auth.js/NextAuth.js, and bcryptjs are in use. Vitest covers authentication, public enquiry intake, lead management, Service publication, Testimonial publication, and Website Settings. React Hook Form, React Testing Library, Playwright, GitHub Actions, Vercel, and hosted PostgreSQL are planned for later work.
 
 ## Local setup
 
@@ -21,6 +21,8 @@ Visitors can browse published Services at `/services`, open `/services/[slug]`, 
 Signed-in ADMIN and STAFF can open `/admin/leads`, search by name/email/company, filter by status or service, and view lead details. Both roles can change status and add internal notes; only ADMIN can assign or clear an assignee. The current workflow shows all leads to both roles and allows any of the five statuses to replace another; narrower visibility and transition rules need product review before production.
 
 ADMIN can create drafts at `/admin/services/new`, edit existing Services, and publish or unpublish them at `/admin/services`. STAFF cannot access these pages or actions. Slugs are editable and unique; changing a published slug changes its URL without creating a redirect. Unpublishing preserves historical Leads and their Service association. No Services are seeded automatically.
+
+ADMIN can manage fictional sample testimonials at `/admin/testimonials` and business name, email, phone, and address at `/admin/settings`. Published testimonials appear on the homepage with an explicit portfolio-example label; drafts stay private. Saved settings provide the public brand and contact details. When no settings row exists, the public site uses the NexaService name and omits contact details rather than showing invented information. Settings are created only through an ADMIN save. No testimonials or settings are seeded automatically.
 
 Current checks: `npm run lint`, `npx next typegen`, `npx tsc --noEmit`, `npm test`, and `npm run build`.
 

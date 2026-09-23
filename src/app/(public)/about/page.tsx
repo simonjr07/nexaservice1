@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getPublicSettings } from "@/features/website-content/manage-content";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "Learn about the considered approach behind NexaService, a fictional professional service company.",
+  description: "Learn about the considered approach behind this fictional professional service company.",
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const { businessName } = await getPublicSettings();
   return (
     <>
       <section className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 md:py-28 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20 lg:px-12">
-        <div><p className="text-xs font-semibold uppercase tracking-[0.25em] text-sea">About NexaService</p><div aria-hidden="true" className="mt-8 h-1 w-16 bg-sea" /></div>
+        <div><p className="text-xs font-semibold uppercase tracking-[0.25em] text-sea">About {businessName}</p><div aria-hidden="true" className="mt-8 h-1 w-16 bg-sea" /></div>
         <div>
           <h1 className="text-5xl font-semibold leading-[1.08] tracking-[-0.06em] sm:text-6xl">Service should feel considered, not complicated.</h1>
-          <p className="mt-8 max-w-2xl text-lg leading-9 text-muted">NexaService is a fictional service company built around a simple idea: people deserve clear communication and practical care when they ask for help with a space or project.</p>
+          <p className="mt-8 max-w-2xl text-lg leading-9 text-muted">{businessName} is a fictional service company built around a simple idea: people deserve clear communication and practical care when they ask for help with a space or project.</p>
           <p className="mt-5 max-w-2xl text-base leading-8 text-muted">Our approach begins with listening, continues with a sensible plan, and stays focused on the details that make work easier to understand and manage.</p>
         </div>
       </section>

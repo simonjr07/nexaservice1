@@ -18,6 +18,10 @@ vi.mock("next/cache", () => ({ revalidatePath }));
 vi.mock("@/server/db/client", () => ({ prisma: { user: { findUnique } } }));
 vi.mock("@/server/db/repositories/services", () => ({ serviceRepository: repository }));
 vi.mock("@/server/db/repositories/lead-intake", () => ({ leadIntakeRepository: { listPublishedServices } }));
+vi.mock("@/features/website-content/manage-content", () => ({
+  getPublicSettings: async () => ({ businessName: "NexaService", email: "", phone: "", address: "" }),
+  listPublishedTestimonials: async () => [],
+}));
 
 import AdminServicesPage from "@/app/admin/(protected)/services/page";
 import NewServicePage from "@/app/admin/(protected)/services/new/page";

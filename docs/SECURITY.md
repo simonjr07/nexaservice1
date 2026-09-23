@@ -1,6 +1,6 @@
 # Security plan
 
-This document distinguishes implemented controls from remaining security work. `/admin` requires a staff session; its lead pages contain real private data, and its Service pages allow ADMIN content management. Other management areas remain placeholders.
+This document distinguishes implemented controls from remaining security work. `/admin` requires a staff session; its lead pages contain private data, and its Service, Testimonial, and Settings pages allow ADMIN management. Staff account management remains planned.
 
 ## Authentication
 
@@ -17,10 +17,12 @@ This document distinguishes implemented controls from remaining security work. `
 - Never trust client role data, hidden buttons, route layouts, or submitted user IDs as authorization. Enforce policy in server business/data-access paths.
 - Return minimal data; public paths must never expose leads or internal notes.
 - Public Service queries filter `published = true` on the server. Draft details return 404. The quote form lists published Services and validates publication again when an enquiry is submitted. Unpublishing keeps historical Leads and their Service relation.
+- Testimonial management pages and every mutation require ADMIN, including direct Server Action requests. Public Testimonial queries filter `published = true` on the server; drafts never enter public views. Displayed entries are explicitly labeled fictional portfolio examples.
+- Website Settings updates require ADMIN and address only the database-enforced `id = 1` singleton. Public reads select the four approved business fields and do not create or change a row. Missing settings expose no fabricated contact details.
 
 ## Input validation and output safety
 
-- Login, public quote, lead search/filter, lead IDs, status changes, notes, assignments, and Service writes are validated with Zod on the server. Quote fields have length limits; email is trimmed/lowercased; optional blanks normalize to null; selected Service IDs must be valid UUIDs for published records. Service slugs are normalized and constrained before persistence; unique conflicts return safe feedback.
+- Login, public quote, lead search/filter, lead IDs, status changes, notes, assignments, Service writes, Testimonial writes, and Settings writes are validated with Zod on the server. Quote fields have length limits; email is trimmed/lowercased; optional blanks normalize to null; selected Service IDs must be valid UUIDs for published records. Service slugs are normalized and constrained before persistence; unique conflicts return safe feedback. Testimonial blank company becomes null; all SiteSettings fields are required.
 - Render user text safely; never inject raw HTML from enquiries, notes, testimonials, or settings.
 - Redact personal data and secrets in logs. Return generic errors for unexpected failures and avoid disclosing internal resource existence.
 

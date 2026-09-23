@@ -29,6 +29,7 @@ A service business needs a credible public presence that converts interest into 
 - Lead statuses: `NEW`, `CONTACTED`, `QUALIFIED`, `WON`, `LOST`. Lead assignment is optional.
 - Public routes never expose lead data or internal notes. Only ADMIN manages staff accounts and changes public service content. All authorization is enforced server-side.
 - Service management supports ADMIN creation, editing, publication, and unpublication. Only published Services appear in public listings and details or can be selected for new enquiries. Unpublishing keeps historical Lead associations.
+- ADMIN manages Testimonial drafts/publication and one set of public business name/contact settings. Only published Testimonials appear publicly, labeled as fictional portfolio examples. Missing settings use a non-sensitive brand fallback and no invented contact details.
 
 ## Non-functional requirements
 
@@ -50,6 +51,8 @@ A service business needs a credible public presence that converts interest into 
 | US-06 | ADMIN manages content and people. | ADMIN can manage services, testimonials, staff, and selected settings; STAFF mutations are denied on the server. |
 | US-07 | Visitor information stays private. | Public routes and responses reveal no leads, notes, assignments, or staff account data. |
 | US-08 | ADMIN manages Services. | ADMIN can create a draft, edit its content and slug, publish/unpublish it; STAFF cannot manage Services; public visitors see only published Services. |
+| US-09 | ADMIN manages Testimonials. | ADMIN can create a draft, edit it, publish/unpublish it; STAFF cannot manage it; only published fictional examples appear publicly. |
+| US-10 | ADMIN manages business details. | ADMIN can initialize or update one settings row; validated public name and contact fields appear on the site; STAFF cannot edit them. |
 
 ## MVP scope
 

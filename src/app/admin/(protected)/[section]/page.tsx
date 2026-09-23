@@ -3,9 +3,7 @@ import { notFound } from "next/navigation";
 import { requireStaff } from "@/server/auth/authorization";
 
 const sections: Record<string, { title: string; description: string }> = {
-  testimonials: { title: "Testimonials", description: "This area is reserved for future management of approved public testimonials." },
   users: { title: "Users", description: "Staff account management is planned as an administrator-only feature." },
-  settings: { title: "Settings", description: "Selected website settings will be managed here by administrators in a later task." },
 };
 
 export default async function AdminSectionPage({ params }: { params: Promise<{ section: string }> }) {

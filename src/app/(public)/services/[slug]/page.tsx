@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { cache } from "react";
 import { serviceRepository } from "@/server/db/repositories/services";
+import { getPublicSettings } from "@/features/website-content/manage-content";
 
 const getPublishedService = cache((slug: string) => serviceRepository.findPublished(slug));
 
@@ -18,10 +19,11 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
   await connection();
   const service = await getPublishedService((await params).slug);
   if (!service) notFound();
+  const settings = await getPublicSettings();
   return <>
     <section className="bg-deep px-5 py-20 text-white sm:px-8 md:py-28 lg:px-12"><div className="mx-auto max-w-7xl">
       <Link href="/services" className="text-sm font-semibold text-accent hover:underline">← All services</Link>
-      <p className="mt-12 text-xs font-semibold uppercase tracking-[0.25em] text-accent">NexaService / Service</p>
+      <p className="mt-12 text-xs font-semibold uppercase tracking-[0.25em] text-accent">{settings.businessName} / Service</p>
       <h1 className="mt-5 max-w-4xl text-5xl font-semibold tracking-[-0.06em] sm:text-6xl">{service.name}</h1>
       <p className="mt-7 max-w-2xl text-lg leading-9 text-white/70">{service.shortDescription}</p>
     </div></section>
