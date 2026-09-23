@@ -1,41 +1,42 @@
-# Conceptual database design
+# Database design and status
 
-This is a PostgreSQL model for later Prisma implementation, not an existing schema. Fields below are proposals; exact types, requiredness, and migration details remain pending where noted.
+The initial PostgreSQL schema is defined in `prisma/schema.prisma`. Prisma 7.10.0 validation and Client generation pass. `prisma/migrations/20260923000000_initial/migration.sql` was generated and reviewed, but **has not been applied**: Docker is unavailable in the current environment and no PostgreSQL server is listening on `127.0.0.1:5432`. No tables, records, or administrator account have been created here.
 
-## Entities and fields
+## Implemented models
 
-| Entity | Proposed fields | Purpose |
+| Model | Fields | Relationships |
 | --- | --- | --- |
-| User | `id`, `name`, unique `email`, `role` (ADMIN/STAFF), authentication fields, `createdAt`, `updatedAt`, optional `disabledAt` | Internal staff identity; no public users. |
-| Service | `id`, `name`, unique `slug`, `summary`, `description`, publication state, display order, timestamps | Public service content and optional lead context. |
-| Lead | `id`, contact name/email, optional phone, enquiry details, `status`, optional `serviceId`, optional `assignedToId`, timestamps | Enquiry and staff workflow record. |
-| LeadNote | `id`, `leadId`, `authorId`, body, `createdAt`, optional `updatedAt` | Internal-only lead note. |
-| Testimonial | `id`, attribution/name, quote, publication state, display order, timestamps | Public social proof. |
-| SiteSettings | singleton/keyed identity, selected settings fields, `updatedAt` | ADMIN-managed website settings. |
+| User | UUID `id`, `name`, unique `email`, `passwordHash`, `role` (ADMIN/STAFF), `createdAt`, `updatedAt` | May be assigned Leads and author LeadNotes. No user is provisioned by this task. |
+| Service | UUID `id`, `name`, unique `slug`, `shortDescription`, `description`, `published` (false by default), timestamps | May be referenced by Leads. |
+| Lead | UUID `id`, `name`, `email`, optional `phone` and `company`, `message`, `status` (NEW by default), optional `serviceId` and `assignedUserId`, timestamps | Optional Service and assigned User; many LeadNotes. |
+| LeadNote | UUID `id`, `content`, `leadId`, `authorId`, timestamps | Requires one Lead and one User author. Internal only in future application logic. |
+| Testimonial | UUID `id`, `customerName`, optional `company`, `content`, `published` (false by default), timestamps | No foreign keys. |
+| SiteSettings | integer `id` (default 1), `businessName`, `email`, `phone`, `address`, `updatedAt` | One effective single-business record; none is seeded. |
 
-Auth.js may require account, session, or verification storage depending on the eventual session and sign-in strategy. That choice does not alter the six initial business entities.
+`LeadStatus` is `NEW`, `CONTACTED`, `QUALIFIED`, `WON`, or `LOST`. `Role` is `ADMIN` or `STAFF`. Optional fields are limited to the approved optional contact/context relationships and testimonial company.
 
-## Relationships
+## Constraints and deletion behavior
 
-- Service 1-to-many Lead; a Lead may have no Service.
-- User 1-to-many assigned Lead; a Lead may be unassigned.
-- Lead 1-to-many LeadNote; each note belongs to one Lead.
-- User 1-to-many authored LeadNote; each note has one author.
-- SiteSettings represents one effective configuration, with exact shape pending.
+- Primary keys and foreign keys are in the migration. `User.email` and `Service.slug` are unique. Lead status has a database default of `NEW`.
+- Every foreign key uses `ON DELETE RESTRICT`: deleting a Service, assigned User, Lead, or note author while referenced is blocked. This protects lead history and internal notes from cascade deletion. A future archive/deactivation policy is still needed.
+- The migration adds a PostgreSQL check requiring `SiteSettings.id = 1`. Combined with the primary key, at most one settings row can exist. Future application code should read/upsert ID 1; it must not assume the row already exists.
+- Prisma generates UUID values and `updatedAt` values through the Client. Raw SQL inserts must supply values where the migration has no database default.
+- Unique email/slug comparisons are currently PostgreSQL case-sensitive. Normalization rules are pending; no case-insensitive uniqueness is claimed.
 
-## Constraints
+## Query indexes
 
-- Unique normalized User email and Service slug after normalization rules are chosen.
-- `User.role` is ADMIN or STAFF. `Lead.status` is `NEW`, `CONTACTED`, `QUALIFIED`, `WON`, or `LOST`; public creation sets `NEW` in business logic and ideally as a database default.
-- Foreign keys protect lead service/assignee and note lead/author relations. An assignee must be an eligible staff user.
-- Required lead contact fields and length limits need approval; at least one reliable reply channel is required.
-- Deletion must avoid silently losing lead history or orphaning notes. The exact archive/delete policy is pending.
-- Database constraints complement server-side authorization; notes are never selected into public queries.
+- Lead `createdAt` supports newest-first lists.
+- Lead `(status, createdAt)` supports status-filtered lists.
+- Lead `(assignedUserId, createdAt)` supports assigned-work lists.
+- Lead `(serviceId, createdAt)` supports service-filtered lists.
+- LeadNote `(leadId, createdAt)` supports ordered notes for a lead.
 
-## Proposed indexes
+Unique indexes on User email and Service slug come from their unique constraints. No text-search index is added before search behavior is decided.
 
-Unique User email and Service slug; Lead `createdAt`, `(status, createdAt)`, and `(assignedToId, createdAt)`; LeadNote `(leadId, createdAt)`. Consider Lead `(serviceId, createdAt)` if service filtering is approved. Add text-search indexes only after search behavior and query plans are known.
+## Migration and development data
 
-## Pending schema decisions
+Apply the checked-in migration to a new **local development** database using the commands in [Deployment](DEPLOYMENT.md). Do not run reset or volume-removal commands against data you need to keep. This task does not seed records. A later seed can add clearly fictional, non-sensitive services and testimonials after content is approved; staff users must be provisioned through a secure process, without hard-coded administrator credentials or a public password.
 
-Exact contact/enquiry fields; one versus two form shapes; lead visibility; search fields; publication rules; deletion/archival; staff disablement; Auth.js session strategy; settings fields; phone/email requirements; and data retention.
+## Decisions still pending
+
+Email/slug normalization, lead search fields, staff and lead deletion or archival, staff visibility, production data retention, and secure initial administrator provisioning. The user-specified initial field list is implemented; changes to it need review before a later migration.

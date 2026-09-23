@@ -6,11 +6,15 @@ Visitors will browse services, company information, and testimonials, then conta
 
 ## Current status
 
-**Initial application shell.** The public site now has responsive navigation, a homepage, and static Services, About, and Contact pages. `/admin` is a public visual preview with placeholder sections only. The enquiry form, database, authentication, operational dashboard, tests, and deployment workflow remain planned. No quote request can be submitted yet.
+**Planning and documentation.** The repository currently contains a Next.js starter. The product features, database, authentication, tests, and deployment workflow described in the docs are planned, not implemented.
 
 ## Planned stack
 
-One Next.js App Router application using React, TypeScript, and Tailwind CSS; PostgreSQL with Prisma; Zod; Auth.js; React Hook Form; Vitest, React Testing Library, and Playwright; Docker; GitHub Actions; Vercel; and hosted PostgreSQL for production. Provider and operational details marked pending in the docs require a later decision.
+One Next.js App Router application using React, TypeScript, and Tailwind CSS; PostgreSQL with Prisma 7.10.0 and Docker Compose for local development. Zod, Auth.js, React Hook Form, Vitest, React Testing Library, Playwright, GitHub Actions, Vercel, and hosted PostgreSQL remain planned. Provider and operational details marked pending in the docs require a later decision.
+
+## Local database quick start
+
+Copy `.env.example` to `.env`, choose a new local-only password, and keep `DATABASE_URL` aligned with the Compose variables. Then run `docker compose up -d db`, wait for `docker compose ps` to show a healthy database, and run `npm run db:migrate`. See [Deployment](docs/DEPLOYMENT.md) for the full setup and shutdown procedure. Prisma Client can be regenerated with `npm run db:generate`; these commands are configured but migration application has not yet been verified in this environment.
 
 ## Documentation
 
@@ -24,4 +28,4 @@ One Next.js App Router application using React, TypeScript, and Tailwind CSS; Po
 - [Security](docs/SECURITY.md): security requirements
 - [Deployment](docs/DEPLOYMENT.md): planned local and production workflow
 
-Run the current shell locally with `npm run dev`. The public quote CTA opens an honest coming-soon contact page; it does not submit an enquiry. Do not add private data or working admin actions to `/admin` until authentication and server-side authorization are implemented.
+The current starter can be run with `npm run dev`. That command does not provide the planned product functionality.

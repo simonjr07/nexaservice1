@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  WON
+  LOST
+}
+
+model User {
+  id            String     @id @default(uuid()) @db.Uuid
+  name          String
+  email         String     @unique
+  passwordHash  String
+  role          Role
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  assignedLeads Lead[]     @relation("LeadAssignee")
+  authoredNotes LeadNote[] @relation("NoteAuthor")
+}
+
+model Service {
+  id               String   @id @default(uuid()) @db.Uuid
+  name             String
+  slug             String   @unique
+  shortDescription String
+  description      String
+  published        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  leads            Lead[]
+}
+
+model Lead {
+  id             String     @id @default(uuid()) @db.Uuid
+  name           String
+  email          String
+  phone          String?
+  company        String?
+  message        String
+  status         LeadStatus @default(NEW)
+  serviceId      String?    @db.Uuid
+  assignedUserId String?    @db.Uuid
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  service        Service?   @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  assignedUser   User?      @relation("LeadAssignee", fields: [assignedUserId], references: [id], onDelete: Restrict)
+  notes          LeadNote[]
+
+  @@index([createdAt])
+  @@index([status, createdAt])
+  @@index([assignedUserId, createdAt])
+  @@index([serviceId, createdAt])
+}
+
+model LeadNote {
+  id        String   @id @default(uuid()) @db.Uuid
+  content   String
+  leadId    String   @db.Uuid
+  authorId  String   @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Restrict)
+  author    User     @relation("NoteAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([leadId, createdAt])
+}
+
+model Testimonial {
+  id           String   @id @default(uuid()) @db.Uuid
+  customerName String
+  company      String?
+  content      String
+  published    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model SiteSettings {
+  id           Int      @id @default(1)
+  businessName String
+  email        String
+  phone        String
+  address      String
+  updatedAt    DateTime @updatedAt
+}
