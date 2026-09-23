@@ -22,7 +22,7 @@ export function SiteFooter() {
         <div>
           <h2 className="text-sm font-semibold">Start a conversation</h2>
           <p className="mt-5 text-sm leading-7 text-white/65">
-            Tell us what you need. The enquiry experience is being prepared.
+            Tell us what you need. Start with a short enquiry and we can take it from there.
           </p>
           <Link href="/contact#request-quote" className="mt-4 inline-block text-sm font-semibold text-accent hover:underline">
             Request a quote <span aria-hidden="true">↗</span>
