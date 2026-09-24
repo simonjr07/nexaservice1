@@ -66,7 +66,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             </dl>
           </section>
           <section aria-labelledby="status-heading" className="rounded-2xl border border-line bg-white p-6"><h2 id="status-heading" className="mb-5 text-xl font-semibold">Progress</h2><StatusForm leadId={lead.id} currentStatus={lead.status} /></section>
-          {user.role === "ADMIN" && <section aria-labelledby="assignment-heading" className="rounded-2xl border border-line bg-white p-6"><h2 id="assignment-heading" className="mb-5 text-xl font-semibold">Assignment</h2><AssignmentForm leadId={lead.id} currentAssigneeId={lead.assignedUser?.id ?? null} staff={staff} /><p className="mt-3 text-xs leading-5 text-muted">All current ADMIN and STAFF accounts are eligible for assignment.</p></section>}
+          {user.role === "ADMIN" && <section aria-labelledby="assignment-heading" className="rounded-2xl border border-line bg-white p-6"><h2 id="assignment-heading" className="mb-5 text-xl font-semibold">Assignment</h2><AssignmentForm leadId={lead.id} currentAssigneeId={lead.assignedUser?.id ?? null} staff={staff} /><p className="mt-3 text-xs leading-5 text-muted">Only active ADMIN and STAFF accounts can receive new assignments. Historical assignments remain visible.</p></section>}
         </div>
       </div>
     </>

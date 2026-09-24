@@ -2,7 +2,7 @@
 
 ## Current implementation checkpoint
 
-The public site and responsive dashboard are implemented. The database foundation includes local PostgreSQL Compose configuration, Prisma 7.10.0 schema/configuration, an initial SQL migration, and one server-side Client module at `src/server/db/client.ts`. Prisma connects to local PostgreSQL and reports the migration up to date. Staff authentication and role checks are implemented in code; a transactional credential test passes, while a full browser login with a provisioned account is not yet verified. Public lead intake and protected lead management are implemented and tested against PostgreSQL using rolled-back transactions. The dashboard reads real PostgreSQL aggregations for all-lead counts, recent leads, six UTC calendar months, and Service enquiry ranking. ADMIN Service and Testimonial management, published-only public reads, and singleton Website Settings are implemented. A fictional public browser enquiry was verified in durable PostgreSQL; signed-in admin browser workflows remain unverified. Staff account management remains a placeholder.
+The public site and responsive dashboard are implemented. The database foundation includes local PostgreSQL Compose configuration, Prisma 7.10.0 schema/configuration, the initial and account-status SQL migrations, and one server-side Client module at `src/server/db/client.ts`. Prisma connects to local PostgreSQL and reports both migrations up to date. Staff authentication and role checks are implemented in code; transactional credential and staff-management tests pass, while a full browser login with a provisioned account is not yet verified. Public lead intake and protected lead management are implemented and tested against PostgreSQL using rolled-back transactions. The dashboard reads real PostgreSQL aggregations for all-lead counts, recent leads, six UTC calendar months, and Service enquiry ranking. ADMIN Service, Testimonial, Website Settings, and staff-account management are implemented. A fictional public browser enquiry was verified in durable PostgreSQL; signed-in admin browser workflows remain unverified.
 
 ## System overview and approved stack
 
@@ -10,7 +10,7 @@ NexaService is one Next.js App Router full-stack application. React and Tailwind
 
 ## Public and private boundaries
 
-- `/admin` and its child routes use a server-checked staff layout. `/admin/login` stays public. Lead routes read real Lead data. Service, Testimonial, and Settings management pages require ADMIN; staff account management remains a placeholder.
+- `/admin` and its child routes use a server-checked staff layout. `/admin/login` stays public. Lead routes read real Lead data. Service, Testimonial, Settings, and Users management pages require ADMIN.
 - Public routes render approved site content and accept contact/enquiry submissions. Public visitors have no account or access to leads, notes, assignments, and dashboard data.
 - Dashboard routes require a verified staff session. Only ADMIN and STAFF exist as internal roles.
 - Route/layout checks help navigation, but each private read and mutation independently checks identity, role, and resource scope on the server.
@@ -24,7 +24,7 @@ The centralized Prisma module uses the PostgreSQL driver adapter required by Pri
 
 ## Authentication and authorization
 
-NextAuth.js 4.24.15 uses a credentials provider and the existing Prisma `User` table. Credentials are validated with Zod, email is trimmed/lowercased, and bcryptjs compares password hashes. Auth.js issues an eight-hour JWT session in its HTTP-only cookie. The JWT/session expose only user ID, name, email, and role; no password hash. `getServerSession` plus a fresh database lookup in `src/server/auth/authorization.ts` checks that the user still exists and uses the current role. The protected route group redirects visitors to `/admin/login`; lead pages and actions check identity again. Both ADMIN and STAFF currently see all leads and can change status/add notes; only ADMIN may assign. This initial visibility rule and unrestricted status transitions need product review before production. No public registration exists.
+NextAuth.js 4.24.15 uses a credentials provider and the Prisma `User` table. Credentials are validated with Zod, email is trimmed/lowercased, and bcryptjs compares password hashes only for ACTIVE users. Auth.js issues an eight-hour JWT session in its HTTP-only cookie. The JWT/session expose only user ID, name, email, and role; no password hash or account status. `getServerSession` plus a fresh database lookup in `src/server/auth/authorization.ts` checks that the user is still ACTIVE and uses the current role. Disablement therefore revokes protected access for already-issued sessions without waiting for JWT expiry; the cookie itself is not remotely erased. The protected route group redirects visitors to `/admin/login`; private pages and actions check identity again. Both ADMIN and STAFF currently see all leads and can change status/add notes; only ADMIN may assign an active account. This initial visibility rule and unrestricted status transitions need product review before production. No public registration exists.
 
 ## Request flows
 
@@ -35,6 +35,7 @@ NextAuth.js 4.24.15 uses a credentials provider and the existing Prisma `User` t
 5. **Testimonial content edit (implemented):** ADMIN page/Server Action -> fresh User and ADMIN check -> Zod validation -> repository write -> revalidate admin list and homepage. Public reads explicitly filter `published = true`.
 6. **Website settings edit (implemented):** ADMIN form/Server Action -> fresh User and ADMIN check -> Zod validation -> repository upsert at `id = 1` -> revalidate public layout. Public layout, metadata, and pages share a request-cached settings read; a missing row returns a name-only fallback without writing a record.
 7. **Dashboard analytics (implemented):** `/admin` -> fresh STAFF/ADMIN check -> dashboard business service defines a six-month UTC window and fills zero months -> repository uses database status grouping, bounded count/date queries, five selected recent rows, and relation counts for up to five Services. It includes unpublished Services for historical reporting. No public analytics endpoint or full-table Lead fetch exists.
+8. **Staff account change (implemented):** ADMIN page/Server Action -> fresh ACTIVE ADMIN check -> Zod validation -> business service hashes a new password when creating -> repository transaction serializes account changes, rechecks the actor, and blocks self-disablement/demotion and loss of the last active ADMIN -> safe result. Lead assignment choices and checks require ACTIVE assignees; historical foreign keys remain unchanged.
 
 ## Proposed application structure
 
@@ -43,7 +44,7 @@ Current relevant structure (future feature modules may be added as planned):
 ```text
 src/app/(public)/                    public pages
 src/app/admin/login/                public staff sign-in page
-src/app/admin/(protected)/          authenticated workspace shell/placeholders
+src/app/admin/(protected)/          authenticated workspace routes and shell
 src/app/api/auth/[...nextauth]/     Auth.js HTTP handler
 src/server/auth/                   credentials, session options, authorization
 src/server/db/                     centralized Prisma client
@@ -52,6 +53,9 @@ src/features/enquiry/              validation and creation rules
 src/components/public/enquiry-form.tsx  quote form UI
 src/features/leads/                protected lead validation and business rules
 src/features/dashboard/            dashboard metric definitions and UTC window
+src/features/staff/                staff validation and business rules
+src/server/db/repositories/staff.ts  selected staff reads and serialized account changes
+src/app/admin/(protected)/users/    ADMIN staff pages and Server Actions
 src/server/db/repositories/dashboard-analytics.ts  bounded Lead and Service aggregations
 src/features/services/             Service validation and management rules
 src/features/website-content/      Testimonial and Settings validation/business rules

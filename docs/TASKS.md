@@ -21,6 +21,8 @@ Prisma subsequently connected to local PostgreSQL and reported the migration up 
 
 **Dashboard-analytics checkpoint (2026-09-23):** Task #10's `/admin` overview now shows database-backed all-lead/status/current-UTC-month counts, five recent Leads, six UTC calendar months including zero months, and up to five Services by linked enquiry count including unpublished Services. STAFF and ADMIN may view it under the current all-leads policy. Unit and rollback-based PostgreSQL tests pass; signed-in browser verification remains open. D03's assigned-only view is still planned, so D03 as a whole remains in progress.
 
+**Staff-management checkpoint (2026-09-24):** Task #11's ADMIN-only `/admin/users` list, creation, profile editing, and disable/reactivate controls are implemented. The User status migration defaults existing accounts to ACTIVE. Login and protected requests reject DISABLED accounts, assignment choices exclude them, and historical Lead/LeadNote relations remain intact. Self and last-active-ADMIN safeguards run inside serialized transactions. Unit and rollback-based PostgreSQL tests pass; signed-in browser verification remains open.
+
 | ID | Phase and task | Depends on | Completion criteria |
 | --- | --- | --- | --- |
 | P01 | Resolve content, forms, lead visibility, status rules, and settings decisions | — | Decisions and acceptance criteria recorded. |
@@ -37,7 +39,7 @@ Prisma subsequently connected to local PostgreSQL and reported the migration up 
 | D03 (metrics implemented; assigned view planned) | Build assigned view and relevant metrics | D02, P01 | Dashboard metrics use current authorized all-leads scope and documented UTC/count definitions; assigned-only view and browser verification remain open. |
 | M01 (in progress) | Build ADMIN assignment | D02, A02 | ADMIN/STAFF role checks and persistence pass tests; browser verification pending. |
 | M02 (in progress) | Build ADMIN service and testimonial management | W01, A02 | Service and Testimonial code/tests are implemented; signed-in ADMIN browser verification remains. |
-| M03 (Settings in progress; Staff planned) | Build ADMIN staff and selected settings management | A02, P01 | Singleton Settings code/tests are implemented; browser verification and staff management remain. |
+| M03 (implemented; browser review pending) | Build ADMIN staff and selected settings management | A02, P01 | Singleton Settings and staff-account lifecycle code/tests are implemented; signed-in ADMIN browser verification remains. |
 | Q01 | Add unit, integration, and component coverage | F04 onward | Critical rules and UI states in Testing pass. |
 | Q02 | Add Playwright workflow coverage | W02, D03, M01–M03 | Public-to-dashboard and permission flows pass. |
 | R01 | Add GitHub Actions and deployment configuration | Q01, Q02 | CI passes and preview deployment is verified. |

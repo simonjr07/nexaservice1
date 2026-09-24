@@ -8,6 +8,7 @@ const record = {
   name: "Example Staff",
   email: "staff@example.test",
   role: "STAFF" as const,
+  status: "ACTIVE" as const,
   passwordHash: "",
 };
 
@@ -28,6 +29,11 @@ describe("staff credentials", () => {
     const user = { ...record, passwordHash: await hash("correct horse battery", 4) };
     await expect(authenticateCredentials({ email: record.email, password: "incorrect" }, async () => user)).resolves.toBeNull();
     await expect(authenticateCredentials({ email: "unknown@example.test", password: "incorrect" }, async () => null)).resolves.toBeNull();
+  });
+
+  it("rejects a disabled account without exposing its status or password hash", async () => {
+    const user = { ...record, status: "DISABLED" as const, passwordHash: await hash("correct horse battery", 4) };
+    await expect(authenticateCredentials({ email: record.email, password: "correct horse battery" }, async () => user)).resolves.toBeNull();
   });
 
   it("rejects malformed input before lookup", async () => {

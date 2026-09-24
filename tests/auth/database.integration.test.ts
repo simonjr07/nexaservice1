@@ -25,7 +25,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "1")("PostgreSQL staff creden
         });
         const lookup = (value: string) => tx.user.findUnique({
           where: { email: value },
-          select: { id: true, name: true, email: true, role: true, passwordHash: true },
+          select: { id: true, name: true, email: true, role: true, status: true, passwordHash: true },
         });
 
         await expect(authenticateCredentials({ email: email.toUpperCase(), password }, lookup)).resolves.toMatchObject({ id: created.id, role: "STAFF" });

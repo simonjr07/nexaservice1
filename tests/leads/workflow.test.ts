@@ -27,7 +27,7 @@ import { initialLeadActionState } from "@/features/leads/validation";
 const userId = "1380de89-e26f-4e8b-a90d-5309a627f6bd";
 const leadId = "7e7c41a8-115f-4782-9541-5a1292d5a4af";
 const assigneeId = "d4728292-f250-4d88-8e2e-f72716c30524";
-const user = { id: userId, name: "Staff Example", email: "staff@example.test", role: "STAFF" };
+const user = { id: userId, name: "Staff Example", email: "staff@example.test", role: "STAFF", status: "ACTIVE" };
 
 function data(name: string, value: string) {
   const form = new FormData();

@@ -1,6 +1,6 @@
 # Testing strategy
 
-Vitest covers authentication, public lead intake, protected lead management, dashboard analytics, Service management/publication, Testimonial management/publication, and singleton Website Settings. Component and browser suites remain planned.
+Vitest covers authentication, staff-account management, public lead intake, protected lead management, dashboard analytics, Service management/publication, Testimonial management/publication, and singleton Website Settings. Component and browser suites remain planned.
 
 ## Unit tests — Vitest
 
@@ -16,6 +16,8 @@ Current `tests/website-content` workflow coverage checks ADMIN Testimonial creat
 
 Current `tests/dashboard` unit coverage checks status/total counts, current-month boundaries, six chronological months and zero-month filling across a year transition, STAFF/ADMIN admission, unauthenticated denial before queries, and generic database errors. The dashboard is a protected server read; no new public interface is added.
 
+Current `tests/staff` workflow coverage checks ADMIN creation, server-side STAFF/visitor denial, normalized/duplicate email, weak password and invalid role/status, bcrypt storage, edits without password changes, unknown users, and safe database errors. Auth tests check that DISABLED accounts fail sign-in and that an already-issued session fails the fresh database authorization check.
+
 ## Integration tests — Vitest with PostgreSQL
 
 Run `$env:RUN_DATABASE_TESTS = '1'; npm test` in PowerShell with a migrated local PostgreSQL database to include the credential integration test. It creates a random STAFF record inside a transaction, verifies actual Prisma lookup and bcrypt comparison, then rolls the transaction back. This passed against local PostgreSQL on 2026-09-23. An isolated test database lifecycle and a real Auth.js cookie/sign-out browser flow are still pending. Future integration tests should cover lead visibility, notes, assignment, and transactional changes.
@@ -30,6 +32,8 @@ The website-content integration test creates a Testimonial within a PostgreSQL t
 
 The dashboard integration test creates six fictional Leads and an unpublished Service inside a PostgreSQL transaction. It checks count changes against a pre-transaction baseline, UTC month grouping, recent ordering/limit, and historical unpublished Service ranking, then rolls back and confirms the Service is absent. It leaves existing development records untouched.
 
+The staff-management integration test creates a temporary ADMIN, STAFF, Lead, and LeadNote in one transaction. It verifies bcrypt hashing, duplicate rejection, disablement, active-only assignment eligibility, preserved assignment/authorship, reactivation, unchanged password on profile edit, and self/last-ADMIN safeguards before rolling back. It does not exercise the signed-in browser workflow.
+
 To repeat the public manual check, start the app locally, submit a fictional enquiry at `/contact#request-quote` using a unique `example.test` email, and confirm the success message. Query that email in the local PostgreSQL `Lead` table and verify `status = NEW`, `assignedUserId IS NULL`, and the chosen `serviceId` (or null). Do not use real customer details for this check.
 
 Then sign in as a provisioned development ADMIN, find that enquiry at `/admin/leads`, open it, update status, add a private note, assign a current staff account, and refresh. Confirm the status, note/author, and assignment persist. Sign out and verify that the list/detail redirect to login. Use only fictional data; the browser workflow has not yet been verified by the automated tests.
@@ -39,6 +43,8 @@ For a Service browser check, sign in as ADMIN, create a test draft at `/admin/se
 For website content, sign in as ADMIN, create a fictional Testimonial draft, publish it, verify the labeled homepage section, edit it, and unpublish it. At `/admin/settings`, enter fictional business details, save, and verify the public header, footer, contact page, and metadata. Refresh to confirm persistence. Use a disposable development database or restore previously saved settings afterward; signed-in browser verification remains open until credentials are available to the human engineer.
 
 For dashboard verification, sign in as a development ADMIN and compare `/admin` Total Leads with the unfiltered `/admin/leads` count. Submit a fictional public enquiry, refresh, and confirm Total, New, This Month, and Recent Leads change. Change its status to CONTACTED and confirm New decreases and Contacted increases. If linked to a Service, check the Service ranking. The signed-in browser sequence remains unverified until a local session is available; do not use real customer information.
+
+For staff management, sign in as an existing ADMIN and create a fictional STAFF account at `/admin/users/new`. Sign in with that new account, verify ordinary dashboard access and denial at `/admin/users`, then return as ADMIN to disable it. Confirm sign-in and existing-session protected requests fail. Reactivate it and confirm sign-in works again. Use a disposable development database or a deliberate test-account retention plan; the browser sequence remains unverified without an existing ADMIN session.
 
 ## Component tests — React Testing Library
 
@@ -58,6 +64,7 @@ Playwright is not configured yet. With an isolated test database, add real sign-
 | Service management | ADMIN edits and publication appear publicly; drafts stay private; STAFF writes denied; historical Lead relation survives unpublication. |
 | Website content | ADMIN-only Testimonial and Settings writes, draft publication filtering, singleton settings, safe public fallback. |
 | Dashboard analytics | Authorized all-lead counts, UTC date boundaries, zero months, recent five, unpublished Service associations, safe empty/error states. |
+| Staff account lifecycle | ADMIN-only creation/edit/status, bcrypt, immediate protected-access denial after disablement, last-ADMIN safeguards, active-only assignments, historical relationships. |
 | Session boundary | Signed-out or expired sessions cannot read or mutate private data. |
 
 CI should run lint, type checking, relevant tests, and a production build once scripts exist. Coverage targets and supported browsers are pending decisions.

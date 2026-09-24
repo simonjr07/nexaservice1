@@ -13,7 +13,13 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        return authenticateCredentials(credentials);
+        try {
+          return await authenticateCredentials(credentials);
+        } catch {
+          // Auth.js includes thrown messages in the credentials callback URL.
+          console.error("Staff sign-in could not complete due to an internal error.");
+          return null;
+        }
       },
     }),
   ],

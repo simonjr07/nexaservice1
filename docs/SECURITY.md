@@ -1,17 +1,18 @@
 # Security plan
 
-This document distinguishes implemented controls from remaining security work. `/admin` requires a staff session; its lead pages contain private data, and its Service, Testimonial, and Settings pages allow ADMIN management. Staff account management remains planned.
+This document distinguishes implemented controls from remaining security work. `/admin` requires a staff session; its lead pages contain private data, and its Service, Testimonial, Settings, and Users pages require ADMIN for management.
 
 ## Authentication
 
 - Auth.js/NextAuth.js 4.24.15 credentials sign-in reads the existing PostgreSQL `User` through Prisma. There is no visitor registration or customer account flow.
-- Passwords are stored only as bcrypt hashes (cost 12 for newly provisioned development accounts). The login form and server return generic credential failures and do not log submitted passwords. Unknown accounts undergo a dummy hash comparison to reduce timing differences.
+- Passwords are stored only as bcrypt hashes (cost 12 for newly provisioned or ADMIN-created accounts). The login form and server return generic credential failures and do not log submitted passwords. Unknown accounts undergo a dummy hash comparison to reduce timing differences. Staff management never returns a hash to the frontend.
+- Unexpected credential lookup or password-comparison errors are caught before Auth.js handles them. The callback receives a generic credentials failure, while the server logs only a fixed message with no exception details, account identifiers, hashes, or submitted values.
 - Auth.js uses an eight-hour JWT session in its HTTP-only cookie. `NEXTAUTH_SECRET` must be a long random secret. Session callbacks expose only ID, name, email, and role; they never expose `passwordHash`. Auth.js manages CSRF on its sign-in/sign-out endpoints.
-- Staff account disablement, password reset/recovery, and production provisioning are not yet implemented. The development command below is for the first local ADMIN only.
+- ADMIN staff creation, editing, disablement, and reactivation are implemented. Password reset/recovery, password edits, and production administrator provisioning remain pending. The development command below is for the first local ADMIN only.
 
 ## Authorization
 
-- The protected `/admin` layout requires a session and a current `User` row. Deleted accounts lose access even if their JWT is unexpired; role changes use the current database role. `/admin/login` remains public.
+- The protected `/admin` layout and each protected action require a session and a current ACTIVE `User` row. Disabled or deleted accounts lose protected access immediately on the next request even if their JWT is unexpired; role changes use the current database role. Disablement does not remotely erase the JWT cookie, but the cookie cannot authorize protected work while the account remains DISABLED. `/admin/login` remains public and rejects disabled accounts with the same generic failure used for other bad credentials.
 - ADMIN and STAFF can enter the dashboard and currently read all leads and their aggregate analytics, change status, and add internal notes. `/admin` rechecks staff identity before calling the analytics repository; no public analytics interface exists. Each lead page and mutation also rechecks staff identity on the server. STAFF cannot assign, including by invoking the assignment Action directly. Service management pages and every Service mutation independently require ADMIN, including direct Server Action requests; STAFF cannot manage Services.
 - Lead details and notes are selected only for protected routes. The note author comes from the current User, never from form data. The initial all-leads STAFF visibility rule requires product review before production; narrower resource checks will be required if it changes.
 - Never trust client role data, hidden buttons, route layouts, or submitted user IDs as authorization. Enforce policy in server business/data-access paths.
@@ -19,10 +20,11 @@ This document distinguishes implemented controls from remaining security work. `
 - Public Service queries filter `published = true` on the server. Draft details return 404. The quote form lists published Services and validates publication again when an enquiry is submitted. Unpublishing keeps historical Leads and their Service relation.
 - Testimonial management pages and every mutation require ADMIN, including direct Server Action requests. Public Testimonial queries filter `published = true` on the server; drafts never enter public views. Displayed entries are explicitly labeled fictional portfolio examples.
 - Website Settings updates require ADMIN and address only the database-enforced `id = 1` singleton. Public reads select the four approved business fields and do not create or change a row. Missing settings expose no fabricated contact details.
+- Users pages and Server Actions require ADMIN. Mutations recheck an ACTIVE ADMIN inside a serialized database transaction, preventing concurrent administrators from disabling each other and leaving no active administrator. Self-disablement and self-demotion are blocked. Disabled Users remain referenced by historical Leads and LeadNotes; only ACTIVE accounts appear in new assignment choices and pass assignment validation.
 
 ## Input validation and output safety
 
-- Login, public quote, lead search/filter, lead IDs, status changes, notes, assignments, Service writes, Testimonial writes, and Settings writes are validated with Zod on the server. Quote fields have length limits; email is trimmed/lowercased; optional blanks normalize to null; selected Service IDs must be valid UUIDs for published records. Service slugs are normalized and constrained before persistence; unique conflicts return safe feedback. Testimonial blank company becomes null; all SiteSettings fields are required.
+- Login, public quote, lead search/filter, lead IDs, status changes, notes, assignments, Service writes, Testimonial writes, Settings writes, and staff changes are validated with Zod on the server. Quote fields have length limits; email is trimmed/lowercased; optional blanks normalize to null; selected Service IDs must be valid UUIDs for published records. Service slugs are normalized and constrained before persistence; unique conflicts return safe feedback. Testimonial blank company becomes null; all SiteSettings fields are required. New staff passwords must be at least 12 characters and no more than 72 UTF-8 bytes; edits never overwrite passwords.
 - Render user text safely; never inject raw HTML from enquiries, notes, testimonials, or settings.
 - Redact personal data and secrets in logs. Return generic errors for unexpected failures and avoid disclosing internal resource existence.
 

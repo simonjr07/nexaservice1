@@ -35,7 +35,7 @@ import { initialServiceActionState } from "@/features/services/validation";
 
 const id = "1380de89-e26f-4e8b-a90d-5309a627f6bd";
 const serviceId = "7e7c41a8-115f-4782-9541-5a1292d5a4af";
-const admin = { id, name: "Admin", email: "admin@example.test", role: "ADMIN" };
+const admin = { id, name: "Admin", email: "admin@example.test", role: "ADMIN", status: "ACTIVE" };
 const record = { id: serviceId, name: "Workspace care", slug: "workspace-care", shortDescription: "Care for shared workspaces.", description: "Practical support for busy shared workspaces.", published: false, createdAt: new Date(), updatedAt: new Date() };
 
 function form(overrides: Record<string, string> = {}) {

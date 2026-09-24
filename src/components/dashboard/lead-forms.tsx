@@ -57,6 +57,7 @@ export function AssignmentForm({
       <label htmlFor="lead-assignee" className="block text-sm font-semibold">Assigned staff</label>
       <select id="lead-assignee" name="assignedUserId" key={currentAssigneeId ?? "none"} defaultValue={currentAssigneeId ?? ""} disabled={pending} className={controlClass}>
         <option value="">Unassigned</option>
+        {currentAssigneeId && !staff.some((person) => person.id === currentAssigneeId) && <option value={currentAssigneeId} disabled>Previously assigned (inactive)</option>}
         {staff.map((person) => <option key={person.id} value={person.id}>{person.name} ({person.email})</option>)}
       </select>
       <button disabled={pending} className={buttonClass}>{pending ? "Saving…" : "Save assignment"}</button>

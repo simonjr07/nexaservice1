@@ -32,7 +32,7 @@ import { initialSettingsState, initialTestimonialState } from "@/features/websit
 
 const userId = "1380de89-e26f-4e8b-a90d-5309a627f6bd";
 const itemId = "7e7c41a8-115f-4782-9541-5a1292d5a4af";
-const admin = { id: userId, name: "Admin", email: "admin@example.test", role: "ADMIN" };
+const admin = { id: userId, name: "Admin", email: "admin@example.test", role: "ADMIN", status: "ACTIVE" };
 const item = { id: itemId, customerName: "Sample Client", company: null, content: "A fictional example of clear, practical support.", published: false, createdAt: new Date(), updatedAt: new Date() };
 const settings = { businessName: "Example Works", email: "hello@example.test", phone: "+1 555 010 2222", address: "10 Example Street, Sample City", updatedAt: new Date() };
 

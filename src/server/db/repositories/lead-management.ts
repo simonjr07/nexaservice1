@@ -88,7 +88,7 @@ export function createLeadManagementRepository(
     },
     services: () => db.service.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
     staff: () => db.user.findMany({
-      where: { role: { in: ["ADMIN", "STAFF"] } },
+      where: { role: { in: ["ADMIN", "STAFF"] }, status: "ACTIVE" },
       select: { id: true, name: true, email: true },
       orderBy: { name: "asc" },
     }),
@@ -97,7 +97,7 @@ export function createLeadManagementRepository(
     },
     async assignableUserExists(id) {
       return (await db.user.findFirst({
-        where: { id, role: { in: ["ADMIN", "STAFF"] } }, select: { id: true },
+        where: { id, role: { in: ["ADMIN", "STAFF"] }, status: "ACTIVE" }, select: { id: true },
       })) !== null;
     },
     async updateStatus(id, status) {

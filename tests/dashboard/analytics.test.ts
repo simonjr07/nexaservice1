@@ -17,7 +17,7 @@ vi.mock("@/server/db/repositories/dashboard-analytics", () => ({ dashboardAnalyt
 
 import AdminPage from "@/app/admin/(protected)/page";
 
-const staff = { id: "staff-id", name: "Staff", email: "staff@example.test", role: "STAFF" as const };
+const staff = { id: "staff-id", name: "Staff", email: "staff@example.test", role: "STAFF" as const, status: "ACTIVE" };
 const repo = pageRepository as DashboardAnalyticsRepository;
 
 function visibleText(node: unknown): string {

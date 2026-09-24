@@ -12,6 +12,11 @@ enum Role {
   STAFF
 }
 
+enum AccountStatus {
+  ACTIVE
+  DISABLED
+}
+
 enum LeadStatus {
   NEW
   CONTACTED
@@ -26,6 +31,7 @@ model User {
   email         String     @unique
   passwordHash  String
   role          Role
+  status        AccountStatus @default(ACTIVE)
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   assignedLeads Lead[]     @relation("LeadAssignee")

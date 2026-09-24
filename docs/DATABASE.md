@@ -1,12 +1,12 @@
 # Database design and status
 
-The initial PostgreSQL schema is defined in `prisma/schema.prisma`. Prisma 7.10.0 validation and Client generation pass. `prisma/migrations/20260923000000_initial/migration.sql` is present. On 2026-09-23, `npx prisma migrate status` connected to local PostgreSQL and reported the schema up to date; a transactional authentication test also queried and wrote a record that was rolled back. Docker CLI/container health could not be inspected here. This task did not provision an administrator.
+The PostgreSQL schema is defined in `prisma/schema.prisma`. Prisma 7.10.0 validation and Client generation pass. The initial migration and `prisma/migrations/20260923231617_user_account_status/migration.sql` are applied locally; `npx prisma migrate status` reports the schema up to date. The account-status migration adds `ACTIVE`/`DISABLED` with an `ACTIVE` database default, so existing Users remain active. It does not remove accounts or alter Lead foreign keys. Docker CLI/container health has not been independently inspected here.
 
 ## Implemented models
 
 | Model | Fields | Relationships |
 | --- | --- | --- |
-| User | UUID `id`, `name`, unique `email`, `passwordHash`, `role` (ADMIN/STAFF), `createdAt`, `updatedAt` | May be assigned Leads and author LeadNotes. The development-only provisioning command can create the first ADMIN after migration. |
+| User | UUID `id`, `name`, unique `email`, `passwordHash`, `role` (ADMIN/STAFF), `status` (ACTIVE by default or DISABLED), `createdAt`, `updatedAt` | May be assigned Leads and author LeadNotes. The development-only provisioning command creates the first ADMIN; later accounts are managed by an active ADMIN. |
 | Service | UUID `id`, `name`, unique `slug`, `shortDescription`, `description`, `published` (false by default), timestamps | May be referenced by Leads. |
 | Lead | UUID `id`, `name`, `email`, optional `phone` and `company`, `message`, `status` (NEW by default), optional `serviceId` and `assignedUserId`, timestamps | Optional Service and assigned User; many LeadNotes. |
 | LeadNote | UUID `id`, `content`, `leadId`, `authorId`, timestamps | Requires one Lead and one User author. Internal only in future application logic. |
@@ -17,11 +17,11 @@ The initial PostgreSQL schema is defined in `prisma/schema.prisma`. Prisma 7.10.
 
 ## Constraints and deletion behavior
 
-- Primary keys and foreign keys are in the migration. `User.email` and `Service.slug` are unique. Lead status has a database default of `NEW`.
-- Every foreign key uses `ON DELETE RESTRICT`: deleting a Service, assigned User, Lead, or note author while referenced is blocked. This protects lead history and internal notes from cascade deletion. A future archive/deactivation policy is still needed.
+- Primary keys and foreign keys are in the migrations. `User.email` and `Service.slug` are unique. Lead status defaults to `NEW`; User account status defaults to `ACTIVE`.
+- Every foreign key uses `ON DELETE RESTRICT`: deleting a Service, assigned User, Lead, or note author while referenced is blocked. Disabling a User keeps existing Lead assignments and LeadNote authorship. Hard deletion and broader retention policy remain undecided.
 - The migration adds a PostgreSQL check requiring `SiteSettings.id = 1`. Combined with the primary key, at most one settings row can exist. The settings repository reads/upserts ID 1; public reads never initialize or overwrite the row. If absent, the UI uses `NexaService` and omits email/phone/address.
 - Prisma generates UUID values and `updatedAt` values through the Client. Raw SQL inserts must supply values where the migration has no database default.
-- Unique email/slug comparisons are PostgreSQL case-sensitive. Authentication and development provisioning trim/lowercase staff emails before lookup/storage; this does not enforce case-insensitive uniqueness for rows inserted by other means. Service management trims and lowercases slugs, turns whitespace into hyphens, validates their shape, and handles unique constraint conflicts. Direct database writes must obey the same convention.
+- Unique email/slug comparisons are PostgreSQL case-sensitive. Authentication, development provisioning, and ADMIN staff creation/editing trim/lowercase staff emails; management also checks case-insensitive duplicates and handles unique-constraint races. Direct database writes could still create case variants, so database-level case-insensitive uniqueness remains a pending decision. Service management trims and lowercases slugs, turns whitespace into hyphens, validates their shape, and handles unique constraint conflicts.
 
 ## Query indexes
 
