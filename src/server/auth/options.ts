@@ -3,6 +3,7 @@ import "server-only";
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { authenticateCredentials } from "@/server/auth/credentials";
+import { allowRequest } from "@/server/security/rate-limit";
 
 export const authOptions = {
   providers: [
@@ -14,6 +15,7 @@ export const authOptions = {
       },
       async authorize(credentials) {
         try {
+          if (!(await allowRequest("login"))) return null;
           return await authenticateCredentials(credentials);
         } catch {
           // Auth.js includes thrown messages in the credentials callback URL.

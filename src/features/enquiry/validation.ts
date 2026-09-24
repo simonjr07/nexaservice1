@@ -29,6 +29,7 @@ export type EnquiryState =
   | { status: "idle" }
   | { status: "invalid"; fieldErrors: Partial<Record<EnquiryField, string>> }
   | { status: "success" }
+  | { status: "rateLimited" }
   | { status: "error" };
 
 export const initialEnquiryState: EnquiryState = { status: "idle" };

@@ -12,6 +12,8 @@ The frontend retains its restrained visual design. Admin record lists use compac
 
 The public copy now focuses on practical support for commercial workplaces. An illustrative, AI-generated workplace image appears on the About page and in the social preview; it does not depict a real NexaService location. The navigation mark, favicon, and Apple touch icon share one simple visual identity. No real clients, staff, offices, or performance claims are represented.
 
+Task #13 adds shared PostgreSQL login and enquiry throttling, baseline security response headers, and a safe public wait state for limited enquiries. Apply the new additive migration before starting the hardened app. Production edge controls, a full nonce-based CSP, and live deployment verification remain open.
+
 ## Stack
 
 Next.js App Router, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, Auth.js/NextAuth.js, and bcryptjs are in use. Vitest covers authentication, staff management, public enquiry intake, lead management, dashboard analytics, Service publication, Testimonial publication, and Website Settings. React Hook Form, React Testing Library, Playwright, GitHub Actions, Vercel, and hosted PostgreSQL are planned for later work.

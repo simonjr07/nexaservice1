@@ -2,7 +2,7 @@
 
 ## Current implementation checkpoint
 
-The public site and responsive dashboard are implemented. The database foundation includes local PostgreSQL Compose configuration, Prisma 7.10.0 schema/configuration, the initial and account-status SQL migrations, and one server-side Client module at `src/server/db/client.ts`. Prisma connects to local PostgreSQL and reports both migrations up to date. Staff authentication and role checks are implemented in code; transactional credential and staff-management tests pass, while a full browser login with a provisioned account is not yet verified. Public lead intake and protected lead management are implemented and tested against PostgreSQL using rolled-back transactions. The dashboard reads real PostgreSQL aggregations for all-lead counts, recent leads, six UTC calendar months, and Service enquiry ranking. ADMIN Service, Testimonial, Website Settings, and staff-account management are implemented. A fictional public browser enquiry was verified in durable PostgreSQL; signed-in admin browser workflows remain unverified.
+The public site and responsive dashboard are implemented. The database foundation includes local PostgreSQL Compose configuration, Prisma 7.10.0 schema/configuration, the initial, account-status, and request-rate-limit SQL migrations, and one server-side Client module at `src/server/db/client.ts`. Prisma connects to local PostgreSQL and reports all three migrations up to date. Staff authentication and role checks are implemented in code; transactional credential and staff-management tests pass, while a full browser login with a provisioned account is not yet verified. Public lead intake and protected lead management are implemented and tested against PostgreSQL using rolled-back transactions. The dashboard reads real PostgreSQL aggregations for all-lead counts, recent leads, six UTC calendar months, and Service enquiry ranking. ADMIN Service, Testimonial, Website Settings, and staff-account management are implemented. A fictional public browser enquiry was verified in durable PostgreSQL; signed-in admin browser workflows remain unverified.
 
 ## System overview and approved stack
 
@@ -22,13 +22,15 @@ Pages and components focus on rendering. Server Actions handle form-driven appli
 
 The centralized Prisma module uses the PostgreSQL driver adapter required by Prisma 7 and reuses one Client instance during development hot reload. It reads `DATABASE_URL` only when imported at runtime; schema validation and Client generation do not connect to a database.
 
+Login and public enquiry actions consume atomic PostgreSQL rate-limit buckets before credential lookup or Lead creation. The security layer derives an HMAC key from the request's trusted Vercel client IP and `NEXTAUTH_SECRET`; the repository stores only the key, count, and expiry. This uses the existing database and deployment architecture. Outside Vercel, an unidentified shared bucket is used until a trusted proxy is configured.
+
 ## Authentication and authorization
 
 NextAuth.js 4.24.15 uses a credentials provider and the Prisma `User` table. Credentials are validated with Zod, email is trimmed/lowercased, and bcryptjs compares password hashes only for ACTIVE users. Auth.js issues an eight-hour JWT session in its HTTP-only cookie. The JWT/session expose only user ID, name, email, and role; no password hash or account status. `getServerSession` plus a fresh database lookup in `src/server/auth/authorization.ts` checks that the user is still ACTIVE and uses the current role. Disablement therefore revokes protected access for already-issued sessions without waiting for JWT expiry; the cookie itself is not remotely erased. The protected route group redirects visitors to `/admin/login`; private pages and actions check identity again. Both ADMIN and STAFF currently see all leads and can change status/add notes; only ADMIN may assign an active account. This initial visibility rule and unrestricted status transitions need product review before production. No public registration exists.
 
 ## Request flows
 
-1. **Public enquiry (implemented):** `/contact#request-quote` form -> Server Action -> Zod validation and honeypot check -> enquiry service verifies any selected Service is published -> Prisma repository creates a `NEW`, unassigned Lead -> a public success/error state containing no Lead fields. No staff session is required.
+1. **Public enquiry (implemented):** `/contact#request-quote` form -> Server Action consumes a shared rate-limit attempt -> Zod validation and honeypot check -> enquiry service verifies any selected Service is published -> Prisma repository creates a `NEW`, unassigned Lead -> a public success/error state containing no Lead fields. No staff session is required.
 2. **Lead read (implemented):** dashboard request -> fresh session/User check -> Zod validation of filters or lead ID -> Prisma repository query with bounded search, filters, and 50-row pages -> selected lead data and private notes in the protected view.
 3. **Lead mutation (implemented):** Server Action -> fresh session/User check -> service-level STAFF or ADMIN role check -> Zod validation -> repository status/note/assignment write -> safe result and revalidated list/detail. The note author ID comes only from the session.
 4. **Service content edit (implemented):** ADMIN page/Server Action -> fresh User and ADMIN check -> Zod validation and slug conflict check -> Service repository write -> revalidate admin list, public listing/detail, and contact form. Public repository reads use `published = true`; old Leads retain their Service relation when a Service becomes unpublished.
@@ -47,7 +49,9 @@ src/app/admin/login/                public staff sign-in page
 src/app/admin/(protected)/          authenticated workspace routes and shell
 src/app/api/auth/[...nextauth]/     Auth.js HTTP handler
 src/server/auth/                   credentials, session options, authorization
+src/server/security/               shared request-rate-limit policy and keyed identity
 src/server/db/                     centralized Prisma client
+src/server/db/repositories/rate-limits.ts  atomic PostgreSQL counters
 src/server/db/repositories/        public lead-intake Prisma queries
 src/features/enquiry/              validation and creation rules
 src/components/public/enquiry-form.tsx  quote form UI

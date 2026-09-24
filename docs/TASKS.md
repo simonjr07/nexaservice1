@@ -27,6 +27,8 @@ Prisma subsequently connected to local PostgreSQL and reported the migration up 
 
 **Brand and UX checkpoint (2026-09-24):** Task #12B approves the fictional commercial workplace/facility positioning. Public copy, an explicitly illustrative workplace image, matching brand/icon assets, social preview, enquiry feedback, and management empty/publication states are implemented. The Service catalogue remains database-driven; no Service records or business rules were changed. Public and authenticated workspace routes were reviewed at 375, 768, 1024, and 1440 CSS pixels without persistent page-level horizontal overflow. A published Service detail page and signed-out login screen remain unavailable for visual review in the current browser state.
 
+**Security-hardening checkpoint (2026-09-24):** Task #13 adds atomic PostgreSQL request counters for credentials login and public enquiry, a safe enquiry throttle state, and baseline browser security headers. The additive migration was applied locally without changing business records. Unit and rollback-based database tests cover the limiter; production Vercel IP handling, cookies, cache headers, edge controls, and a full CSP require deployment verification. The established authorization, Zod validation, plain-text rendering, and request-scoped settings caching remain in place.
+
 | ID | Phase and task | Depends on | Completion criteria |
 | --- | --- | --- | --- |
 | P01 | Resolve content, forms, lead visibility, status rules, and settings decisions | — | Decisions and acceptance criteria recorded. |

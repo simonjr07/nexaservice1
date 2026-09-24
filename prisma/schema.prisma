@@ -103,3 +103,12 @@ model SiteSettings {
   address      String
   updatedAt    DateTime @updatedAt
 }
+
+// Short-lived counters shared by every application instance.
+model RateLimitBucket {
+  key       String   @id @db.VarChar(64)
+  count     Int
+  expiresAt DateTime
+
+  @@index([expiresAt])
+}

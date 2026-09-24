@@ -22,8 +22,9 @@ body {
 }
 
 :focus-visible {
-  outline: 3px solid #87b94d;
+  outline: 3px solid #11685f;
   outline-offset: 3px;
+  box-shadow: 0 0 0 3px #fff;
 }
 
 ::selection {

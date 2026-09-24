@@ -1,6 +1,6 @@
 # Database design and status
 
-The PostgreSQL schema is defined in `prisma/schema.prisma`. Prisma 7.10.0 validation and Client generation pass. The initial migration and `prisma/migrations/20260923231617_user_account_status/migration.sql` are applied locally; `npx prisma migrate status` reports the schema up to date. The account-status migration adds `ACTIVE`/`DISABLED` with an `ACTIVE` database default, so existing Users remain active. It does not remove accounts or alter Lead foreign keys. Docker CLI/container health has not been independently inspected here.
+The PostgreSQL schema is defined in `prisma/schema.prisma`. Prisma 7.10.0 validation and Client generation pass. The initial, account-status, and additive request-rate-limit migrations are applied locally; `npx prisma migrate status` reports the schema up to date. The account-status migration leaves existing Users active. The limiter migration adds one operational table without changing business records or Lead foreign keys. Docker CLI/container health has not been independently inspected here.
 
 ## Implemented models
 
@@ -12,6 +12,7 @@ The PostgreSQL schema is defined in `prisma/schema.prisma`. Prisma 7.10.0 valida
 | LeadNote | UUID `id`, `content`, `leadId`, `authorId`, timestamps | Requires one Lead and one User author. Internal only in future application logic. |
 | Testimonial | UUID `id`, `customerName`, optional `company`, `content`, `published` (false by default), timestamps | No foreign keys. ADMIN create/edit/publication; public reads filter `published = true`. |
 | SiteSettings | integer `id` (default 1), `businessName`, `email`, `phone`, `address`, `updatedAt` | One effective single-business record, initialized by explicit ADMIN save; none is seeded. |
+| RateLimitBucket | HMAC key (primary key), attempt `count`, `expiresAt` | Operational, short-lived login/enquiry throttle state; no relationship to Users or Leads. |
 
 `LeadStatus` is `NEW`, `CONTACTED`, `QUALIFIED`, `WON`, or `LOST`. `Role` is `ADMIN` or `STAFF`. Optional fields are limited to the approved optional contact/context relationships and testimonial company.
 
@@ -30,6 +31,7 @@ The PostgreSQL schema is defined in `prisma/schema.prisma`. Prisma 7.10.0 valida
 - Lead `(assignedUserId, createdAt)` supports assigned-work lists.
 - Lead `(serviceId, createdAt)` supports service-filtered lists.
 - LeadNote `(leadId, createdAt)` supports ordered notes for a lead.
+- RateLimitBucket `expiresAt` supports bounded cleanup of expired counters; its primary key supports atomic upserts.
 
 Unique indexes on User email and Service slug come from their unique constraints. No text-search index is added before search behavior is decided.
 

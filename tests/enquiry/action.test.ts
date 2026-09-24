@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { createLead } = vi.hoisted(() => ({ createLead: vi.fn() }));
 
+vi.mock("@/server/security/rate-limit", () => ({ allowRequest: vi.fn().mockResolvedValue(true) }));
+
 vi.mock("@/server/db/repositories/lead-intake", () => ({
   leadIntakeRepository: {
     listPublishedServices: async () => [],
@@ -12,6 +14,7 @@ vi.mock("@/server/db/repositories/lead-intake", () => ({
 
 import { submitEnquiry } from "@/app/(public)/contact/actions";
 import { initialEnquiryState } from "@/features/enquiry/validation";
+import { allowRequest } from "@/server/security/rate-limit";
 
 function formData() {
   const data = new FormData();
@@ -22,6 +25,7 @@ function formData() {
 }
 
 beforeEach(() => {
+  vi.mocked(allowRequest).mockReset().mockResolvedValue(true);
   createLead.mockReset();
   createLead.mockResolvedValue(undefined);
 });
@@ -37,6 +41,12 @@ describe("public enquiry Server Action", () => {
   it("returns a generic error when persistence fails", async () => {
     createLead.mockRejectedValue(new Error("database detail must stay private"));
     await expect(submitEnquiry(initialEnquiryState, formData())).resolves.toEqual({ status: "error" });
+  });
+
+  it("rejects a limited request before writing a Lead", async () => {
+    vi.mocked(allowRequest).mockResolvedValueOnce(false);
+    await expect(submitEnquiry(initialEnquiryState, formData())).resolves.toEqual({ status: "rateLimited" });
+    expect(createLead).not.toHaveBeenCalled();
   });
 
   it("reports required fields when a direct request omits them", async () => {

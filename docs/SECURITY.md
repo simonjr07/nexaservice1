@@ -7,7 +7,9 @@ This document distinguishes implemented controls from remaining security work. `
 - Auth.js/NextAuth.js 4.24.15 credentials sign-in reads the existing PostgreSQL `User` through Prisma. There is no visitor registration or customer account flow.
 - Passwords are stored only as bcrypt hashes (cost 12 for newly provisioned or ADMIN-created accounts). The login form and server return generic credential failures and do not log submitted passwords. Unknown accounts undergo a dummy hash comparison to reduce timing differences. Staff management never returns a hash to the frontend.
 - Unexpected credential lookup or password-comparison errors are caught before Auth.js handles them. The callback receives a generic credentials failure, while the server logs only a fixed message with no exception details, account identifiers, hashes, or submitted values.
+- The development provisioning and password-reset scripts print only deliberate refusal messages; unexpected Prisma failures receive fixed generic messages rather than raw exception text.
 - Auth.js uses an eight-hour JWT session in its HTTP-only cookie. `NEXTAUTH_SECRET` must be a long random secret. Session callbacks expose only ID, name, email, and role; they never expose `passwordHash`. Auth.js manages CSRF on its sign-in/sign-out endpoints.
+- The credentials callback consumes a shared PostgreSQL rate-limit counter before looking up an account. Exhaustion returns the same generic Auth.js credentials failure as an incorrect password. Auth.js selects secure cookies when `NEXTAUTH_URL` is HTTPS in production; confirm cookie flags on the deployed domain.
 - ADMIN staff creation, editing, disablement, and reactivation are implemented. A local-only command can reset the existing development ADMIN password; public or production password recovery, password edits in the management UI, and production administrator provisioning remain pending.
 
 ## Authorization
@@ -30,9 +32,17 @@ This document distinguishes implemented controls from remaining security work. `
 
 ## Rate limiting and public form abuse prevention
 
-- Rate-limit enquiry submission and sign-in attempts with a deployment-compatible mechanism. Thresholds and implementation are pending; neither flow currently has deployment-grade rate limiting, which is required before production use.
-- The public quote form uses a visually hidden honeypot: a filled value receives a neutral acknowledgement without creating a Lead. Server field limits and Next.js's default Server Action body limit also bound input. No CAPTCHA or external bot provider is used.
-- Define duplicate-submission behavior and retention before launch. Do not reveal whether a contact address already exists.
+- Login and enquiry each allow 10 requests per 15-minute fixed window per client identifier. `RateLimitBucket` rows in PostgreSQL make the counters atomic and shared across server instances; expiry is reset on the next request, and bounded opportunistic cleanup removes expired rows. Keys are HMAC-SHA-256 values derived from `NEXTAUTH_SECRET`, the flow name, and the client IP. Raw IPs, emails, and passwords are not stored in the limiter. Missing secret or database access fails closed with generic client feedback.
+- On Vercel, the limiter reads `x-vercel-forwarded-for`, which [Vercel overwrites at its edge](https://vercel.com/docs/headers/request-headers). Elsewhere it deliberately ignores caller-supplied forwarding headers and uses one shared `unidentified` bucket. A self-hosted production deployment needs an explicitly trusted proxy/client-IP integration before launch; the fallback protects the application but can throttle unrelated visitors together. Distributed attackers and volumetric traffic still require deployment-edge controls such as a reviewed [Vercel Firewall rule](https://vercel.com/kb/guide/limit-abuse-with-rate-limiting).
+- The public quote form uses a visually hidden honeypot: a filled value normally receives a neutral acknowledgement without creating a Lead. All submissions consume a rate-limit attempt before validation. A limited request receives a safe 15-minute wait message and creates no Lead. Client submission controls prevent accidental double clicks. Server field limits and Next.js's default 1 MB Server Action body limit also bound input. No CAPTCHA or external bot provider is used.
+- Decide retention and duplicate-enquiry policy before launch. Do not reveal whether a contact address already exists.
+
+## Headers, CSRF, and caching
+
+- `next.config.ts` sets `Referrer-Policy: strict-origin-when-cross-origin`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, a restrictive `Permissions-Policy`, and an incremental CSP covering `base-uri`, `object-src`, `frame-ancestors`, and `form-action`. It disables `X-Powered-By`. The CSP intentionally has no `script-src` or `style-src` yet; a nonce-based policy must be tested against Next.js before claiming full inline-script protection.
+- HSTS (`max-age=31536000`, without `includeSubDomains`) is added only when `VERCEL_ENV=production`, where HTTPS is expected. Local and preview responses omit it. Confirm actual production TLS and header behavior after deployment.
+- [Next.js Server Actions](https://nextjs.org/docs/app/guides/data-security) accept POST requests, enforce an Origin/Host check, and have a default 1 MB body limit. No extra allowed origins are configured. Every protected action independently rechecks the current user and role; action IDs and hidden controls are not treated as authorization. Auth.js handles its own CSRF tokens.
+- Protected pages read the current session/User and mutable data on each request; public pages use dynamic server reads, request-scoped React caching for Settings, and targeted path revalidation after mutations. The development runtime sets `Cache-Control: must-revalidate, no-cache` on admin HTML and `no-store, private` on Auth.js responses. Verify cache headers on the production deployment; browser persistence of sensitive admin HTML is not yet proven absent.
 
 ## Secure configuration and data protection
 
@@ -40,7 +50,7 @@ This document distinguishes implemented controls from remaining security work. `
 - Use TLS for production traffic and database connections as supported by the selected provider.
 - Restrict database credentials and protect backups. Establish a restore procedure before production use.
 - Collect only enquiry data needed for follow-up. Decide retention, deletion, and access procedures before launch.
-- Review dependencies and CI/deployment permissions; evaluate security headers and content policy during implementation.
+- Review dependencies and CI/deployment permissions before release. The deployed site still needs a full CSP, edge abuse controls, backup/restore testing, and a data-retention policy.
 
 ## Development admin provisioning
 

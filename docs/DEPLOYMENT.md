@@ -2,7 +2,7 @@
 
 ## Current status
 
-The local Docker Compose, Prisma, and staff authentication configuration are checked in. Docker is not callable here, so container health remains unverified. Prisma connected to local PostgreSQL and reported the initial and account-status migrations up to date; rollback-based credential and staff-management tests passed. A full browser sign-in/sign-out with a provisioned account remains unverified. Production hosting, CI, and Vercel configuration are still planned.
+The local Docker Compose, Prisma, and staff authentication configuration are checked in. Docker is not callable here, so container health remains unverified. Prisma connected to local PostgreSQL and reported the initial, account-status, and request-rate-limit migrations up to date; rollback-based credential and staff-management tests passed. A full browser sign-in/sign-out with a provisioned account remains unverified. Production hosting, CI, and Vercel configuration are still planned.
 
 ## Local PostgreSQL setup
 
@@ -30,10 +30,12 @@ No seed data or administrator account is included. An explicit development-only 
 
 ## Future environments
 
-Use GitHub for review and GitHub Actions for lint, type checking, tests, migration verification, and build once CI is implemented. Deploy the single Next.js app to Vercel with a separately chosen hosted PostgreSQL provider. Production settings must include `DATABASE_URL`, a unique long random `NEXTAUTH_SECRET`, and the canonical `NEXTAUTH_URL`; keep them in hosted secret settings, never `NEXT_PUBLIC_` variables or repository files. Review and apply migrations as a controlled release step. Do not use the development administrator command in production. A deployment-compatible sign-in rate limiter, provider, region, backups, logging, and secret rotation remain pending decisions.
+Use GitHub for review and GitHub Actions for lint, type checking, tests, migration verification, and build once CI is implemented. Deploy the single Next.js app to Vercel with a separately chosen hosted PostgreSQL provider. Production settings must include `DATABASE_URL`, a unique long random `NEXTAUTH_SECRET`, and the canonical HTTPS `NEXTAUTH_URL`; keep them in hosted secret settings, never `NEXT_PUBLIC_` variables or repository files. Apply the additive `request_rate_limits` migration before serving the hardened application: login and enquiry now depend on its table and fail closed if it is unavailable. Vercel supplies `VERCEL`/`VERCEL_ENV`; its edge-controlled client-IP header is used for per-IP counters, and HSTS is emitted only for the production environment. A different host needs a reviewed trusted-IP integration. Verify real TLS, cookie flags, response headers, and a Vercel Firewall rate-limit rule after deployment. Do not use the development administrator command in production. Provider, region, backups, logging, and secret rotation remain pending decisions.
 
 ## Known limitations
 
 Docker container health could not be inspected here, but Prisma migration status and a rollback-based credential test succeeded against local PostgreSQL. Real login/provisioning with a durable account were not verified. The public shell still uses Google-hosted Geist fonts at build time; an offline build may fail to fetch them even when the database setup is correct.
 
 At this checkpoint, `npm audit` reports four high-severity advisories in the Prisma CLI dependency graph (`@prisma/config`, `deepmerge-ts`, `mysql2`, and `prisma`). Its suggested automatic fix would downgrade Prisma to 6.19.3, so no automatic fix was applied. Review a compatible upstream fix before production deployment.
+
+A Task #13 `npm audit --omit=dev` attempt could not reach the npm audit endpoint from this environment. The earlier advisory report is historical, not a fresh clearance. Repeat the audit from a network-enabled environment and review compatible fixes before deployment.

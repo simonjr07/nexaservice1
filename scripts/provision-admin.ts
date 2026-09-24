@@ -3,6 +3,8 @@ import "dotenv/config";
 import { hash } from "bcryptjs";
 import { z } from "zod";
 
+class ProvisionRefused extends Error {}
+
 const provisionSchema = z.object({
   name: z.string().trim().min(1).max(120),
   email: z.string().trim().toLowerCase().email().max(254),
@@ -11,7 +13,7 @@ const provisionSchema = z.object({
 
 async function main() {
   if (process.env.NODE_ENV !== "development") {
-    throw new Error("Administrator provisioning runs only with NODE_ENV=development.");
+    throw new ProvisionRefused("Administrator provisioning runs only with NODE_ENV=development.");
   }
 
   const parsed = provisionSchema.safeParse({
@@ -20,13 +22,13 @@ async function main() {
     password: process.env.ADMIN_PASSWORD,
   });
   if (!parsed.success) {
-    throw new Error("Set valid ADMIN_NAME, ADMIN_EMAIL, and ADMIN_PASSWORD (12–72 UTF-8 bytes) locally.");
+    throw new ProvisionRefused("Set valid ADMIN_NAME, ADMIN_EMAIL, and ADMIN_PASSWORD (12–72 UTF-8 bytes) locally.");
   }
 
   const { prisma } = await import("../src/server/db/client");
   try {
     const existing = await prisma.user.findUnique({ where: { email: parsed.data.email }, select: { id: true } });
-    if (existing) throw new Error("A user with this email already exists; no account was changed.");
+    if (existing) throw new ProvisionRefused("A user with this email already exists; no account was changed.");
 
     const passwordHash = await hash(parsed.data.password, 12);
     await prisma.user.create({
@@ -44,6 +46,6 @@ async function main() {
 }
 
 main().catch((error: unknown) => {
-  console.error(error instanceof Error ? error.message : "Administrator provisioning failed.");
+  console.error(error instanceof ProvisionRefused ? error.message : "Administrator provisioning failed.");
   process.exitCode = 1;
 });

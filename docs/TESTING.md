@@ -6,6 +6,10 @@ For frontend review, check public pages and `/admin/login` at approximately 375,
 
 For the brand pass, confirm that `/favicon.ico`, `/icon.svg`, and `/apple-icon.png` load and match the navigation mark; inspect the public Open Graph image metadata, the About image crop and disclosure, and the enquiry form's first-invalid-field focus. Never submit real customer details during visual checks.
 
+Task #13 security checks cover atomic rate-limit counters and expiry rollover in a rolled-back PostgreSQL transaction, generic Auth.js failure when limited, enquiry rejection before Lead creation, trusted-header selection, and baseline/HSTS header configuration. Manually inspect rendered response headers, public/private route boundaries, keyboard focus, form labels and announcements, image text alternatives, and reduced-motion behavior. These checks are an accessibility review, not a WCAG certification. Avoid exhausting the shared local login bucket while testing a real development administrator.
+
+The shared focus outline was changed to a dark teal ring with a white separator so it remains distinguishable against light and dark backgrounds. A browser check confirmed the public skip link receives visible keyboard focus, and contact/settings controls expose labels. The full signed-out/staff role and disabled-session browser matrix still needs disposable accounts and a controlled test environment.
+
 ## Unit tests — Vitest
 
 Current `tests/auth` coverage checks valid credentials, incorrect and unknown credentials, email normalization, malformed input, minimal session output, visitor redirect, STAFF/ADMIN dashboard admission, STAFF denial of ADMIN access, and deleted-account denial. Run `npm test`. These default tests mock the database. Future pure rule tests should cover approved status-transition rules and metrics.

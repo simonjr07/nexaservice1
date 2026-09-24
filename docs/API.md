@@ -36,7 +36,7 @@ This is primarily an interface plan. Staff sign-in/sign-out uses the Auth.js HTT
 
 ## Response and error conventions
 
-- The quote Action returns only `{status: "success"}`, `{status: "invalid", fieldErrors}`, or `{status: "error"}`. The success state has no Lead ID, status, assignment, or private fields. Other Server Action result shapes remain pending.
+- The quote Action returns only `{status: "success"}`, `{status: "invalid", fieldErrors}`, `{status: "rateLimited"}`, or `{status: "error"}`. Limited requests create no Lead and show a 15-minute wait message. The success state has no Lead ID, status, assignment, or private fields. Other Server Action result shapes remain pending.
 - Lead Actions return a small `status` result (`success`, `invalid`, `notFound`, `forbidden`, or generic `error`); invalid results may include a safe message. They never return raw Lead or User records. Unknown lead detail URLs return a 404. Database failures show a generic UI error.
 - Service Actions return a small status result (`success`, `invalid`, `duplicate`, `notFound`, or generic `error`) and safe field errors when relevant. ADMIN authorization happens before handling input. The public listing/detail never read draft records. The quote page may receive a `serviceId` query parameter to preselect a currently published option; submission validates it again.
 - Testimonial and Settings Actions return a small status result (`success`, `invalid`, `notFound`, or generic `error`) and safe field errors. Each action checks ADMIN before parsing or writing. Public testimonial queries explicitly filter publication; public settings reads return only approved business fields.

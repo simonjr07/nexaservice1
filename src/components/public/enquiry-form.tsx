@@ -92,6 +92,7 @@ export function EnquiryForm({ services, initialServiceId = "", businessName = "N
         </div>
       </fieldset>
       {state.status === "error" && <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">We could not send your enquiry right now. Please try again.</p>}
+      {state.status === "rateLimited" && <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">Too many enquiries were sent from this connection. Please wait 15 minutes before trying again.</p>}
       {state.status === "invalid" && <p role="alert" className="text-sm text-red-800">Please review the highlighted fields.</p>}
       <button type="submit" disabled={pending} className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-deep px-7 py-3 text-sm font-semibold text-white transition-colors hover:bg-sea focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sea disabled:cursor-wait disabled:opacity-65 sm:w-auto">
         {pending ? "Sending enquiry…" : "Send enquiry ↗"}
