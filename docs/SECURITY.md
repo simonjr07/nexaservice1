@@ -51,6 +51,7 @@ This document distinguishes implemented controls from remaining security work. `
 - Restrict database credentials and protect backups. Establish a restore procedure before production use.
 - Collect only enquiry data needed for follow-up. Decide retention, deletion, and access procedures before launch.
 - Review dependencies and CI/deployment permissions before release. The deployed site still needs a full CSP, edge abuse controls, backup/restore testing, and a data-retention policy.
+- CI uses an isolated PostgreSQL service and an ephemeral generated Auth.js secret; the fixed database password in its workflow is for that disposable runner only. It has read-only repository permission and receives no production credentials. Production database migration and first ADMIN creation require separately approved release access and procedures; the development provisioning/reset commands remain blocked in production.
 
 ## Development admin provisioning
 

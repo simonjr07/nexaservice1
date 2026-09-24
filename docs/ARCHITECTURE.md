@@ -6,7 +6,7 @@ The public site and responsive dashboard are implemented. The database foundatio
 
 ## System overview and approved stack
 
-NexaService is one Next.js App Router full-stack application. React and Tailwind CSS provide the UI; TypeScript is used across application code. Auth.js handles staff authentication, Zod validates inputs, current forms use React action state, and server-side business logic uses Prisma to access PostgreSQL. Vitest runs current tests. React Hook Form, React Testing Library, Playwright, GitHub Actions, Vercel, and hosted PostgreSQL remain approved for later work. Docker Compose defines local PostgreSQL. There is no separate Express backend.
+NexaService is one Next.js App Router full-stack application. React and Tailwind CSS provide the UI; TypeScript is used across application code. Auth.js handles staff authentication, Zod validates inputs, current forms use React action state, and server-side business logic uses Prisma to access PostgreSQL. Vitest runs current tests. GitHub Actions CI is configured for clean-database migration and quality checks, but remote execution is not yet verified. React Hook Form, React Testing Library, Playwright, Vercel, and hosted PostgreSQL remain approved for later work. Docker Compose defines local PostgreSQL. There is no separate Express backend.
 
 ## Public and private boundaries
 

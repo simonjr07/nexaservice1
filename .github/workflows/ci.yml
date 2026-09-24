@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-bookworm
+        env:
+          POSTGRES_USER: nexaservice_ci
+          POSTGRES_PASSWORD: ci-only-ephemeral-database
+          POSTGRES_DB: nexaservice_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U nexaservice_ci -d nexaservice_ci"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://nexaservice_ci:ci-only-ephemeral-database@127.0.0.1:5432/nexaservice_ci?schema=public
+      NEXTAUTH_URL: http://localhost:3000
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Set ephemeral Auth.js secret
+        run: echo "NEXTAUTH_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Validate and generate Prisma Client
+        run: |
+          npm run db:validate
+          npm run db:generate
+      - name: Apply checked-in migrations to clean PostgreSQL
+        run: |
+          npm run db:deploy
+          npx prisma migrate status
+      - name: Lint
+        run: npm run lint
+      - name: Type-check
+        run: npm run typecheck
+      - name: Unit and database integration tests
+        run: npm test
+        env:
+          RUN_DATABASE_TESTS: "1"
+      - name: Production build
+        run: npm run build

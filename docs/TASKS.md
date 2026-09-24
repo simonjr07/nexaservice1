@@ -29,6 +29,8 @@ Prisma subsequently connected to local PostgreSQL and reported the migration up 
 
 **Security-hardening checkpoint (2026-09-24):** Task #13 adds atomic PostgreSQL request counters for credentials login and public enquiry, a safe enquiry throttle state, and baseline browser security headers. The additive migration was applied locally without changing business records. Unit and rollback-based database tests cover the limiter; production Vercel IP handling, cookies, cache headers, edge controls, and a full CSP require deployment verification. The established authorization, Zod validation, plain-text rendering, and request-scoped settings caching remain in place.
 
+**CI/deployment-preparation checkpoint (2026-09-24):** Task #14 configures GitHub Actions CI for pull requests and pushes to `main`. It installs from the lockfile, validates/generates Prisma Client, applies checked-in migrations to an isolated PostgreSQL service, runs lint/type checks and all Vitest tests, and builds the app. Node.js 24 LTS is recorded in `.nvmrc`; release, hosted database, and first production ADMIN procedures are documented as proposed operations. No remote CI run or deployment has been verified, so R01/R02 remain in progress.
+
 | ID | Phase and task | Depends on | Completion criteria |
 | --- | --- | --- | --- |
 | P01 | Resolve content, forms, lead visibility, status rules, and settings decisions | — | Decisions and acceptance criteria recorded. |
