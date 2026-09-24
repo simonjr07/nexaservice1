@@ -8,7 +8,7 @@ This document distinguishes implemented controls from remaining security work. `
 - Passwords are stored only as bcrypt hashes (cost 12 for newly provisioned or ADMIN-created accounts). The login form and server return generic credential failures and do not log submitted passwords. Unknown accounts undergo a dummy hash comparison to reduce timing differences. Staff management never returns a hash to the frontend.
 - Unexpected credential lookup or password-comparison errors are caught before Auth.js handles them. The callback receives a generic credentials failure, while the server logs only a fixed message with no exception details, account identifiers, hashes, or submitted values.
 - Auth.js uses an eight-hour JWT session in its HTTP-only cookie. `NEXTAUTH_SECRET` must be a long random secret. Session callbacks expose only ID, name, email, and role; they never expose `passwordHash`. Auth.js manages CSRF on its sign-in/sign-out endpoints.
-- ADMIN staff creation, editing, disablement, and reactivation are implemented. Password reset/recovery, password edits, and production administrator provisioning remain pending. The development command below is for the first local ADMIN only.
+- ADMIN staff creation, editing, disablement, and reactivation are implemented. A local-only command can reset the existing development ADMIN password; public or production password recovery, password edits in the management UI, and production administrator provisioning remain pending.
 
 ## Authorization
 
@@ -56,3 +56,5 @@ Remove-Item Env:ADMIN_PASSWORD, Env:ADMIN_EMAIL, Env:ADMIN_NAME, Env:NODE_ENV
 ```
 
 The password must be at least 12 characters and no more than 72 UTF-8 bytes for bcrypt. The command refuses `NODE_ENV` other than `development`, rejects an existing email instead of changing its role/password, hashes before storage, and never runs automatically. Keep the ignored `.env` and local shell private. No account or password is supplied by the repository. The command has not been exercised against a live database in this environment.
+
+To reset the **existing** development ADMIN password, put the target `ADMIN_EMAIL` and replacement `ADMIN_PASSWORD` in the ignored `.env` and run `npm run admin:reset-password` with `NODE_ENV=development`. The command requires `DATABASE_URL` to match `.env` and point to localhost, applies the same staff password policy and bcrypt cost 12, and refuses a missing, disabled, or non-ADMIN account. It changes only `passwordHash` in one transaction, checks bcrypt against the stored value, and never creates an account or prints credentials. It does not provide production password recovery.
