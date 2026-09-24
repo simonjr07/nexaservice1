@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 export function Brand({ inverse = false, businessName = "NexaService" }: { inverse?: boolean; businessName?: string }) {
+  const branded = businessName.startsWith("NexaService");
   return (
     <Link
       href="/"
@@ -9,12 +10,14 @@ export function Brand({ inverse = false, businessName = "NexaService" }: { inver
     >
       <span
         aria-hidden="true"
-        className={`grid h-9 w-9 place-items-center rounded-xl text-lg font-bold tracking-[-0.1em] ${inverse ? "bg-accent text-deep" : "bg-deep text-accent"}`}
+        className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${inverse ? "bg-accent text-deep" : "bg-deep text-accent"}`}
       >
-        {businessName.charAt(0).toUpperCase()}
+        <svg viewBox="0 0 64 64" className="h-6 w-6" focusable="false">
+          <path d="M16 46V18h7l18 19V18h7v28h-7L23 27v19z" fill="currentColor" />
+        </svg>
       </span>
       <span className="min-w-0 max-w-[9rem] truncate sm:max-w-[18rem] lg:max-w-[22rem]" title={businessName}>
-        {businessName === "NexaService" ? <>Nexa<span className={inverse ? "text-accent" : "text-sea"}>Service</span></> : businessName}
+        {branded ? <>Nexa<span className={inverse ? "text-accent" : "text-sea"}>Service</span><span className="hidden sm:inline">{businessName.slice("NexaService".length)}</span></> : businessName}
       </span>
     </Link>
   );

@@ -5,6 +5,7 @@ import { connection } from "next/server";
 import { cache } from "react";
 import { serviceRepository } from "@/server/db/repositories/services";
 import { getPublicSettings } from "@/features/website-content/manage-content";
+import { publicOpenGraph } from "@/lib/public-social-image";
 
 const getPublishedService = cache((slug: string) => serviceRepository.findPublished(slug));
 
@@ -12,7 +13,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   await connection();
   const service = await getPublishedService((await params).slug);
   if (!service) notFound();
-  return { title: service.name, description: service.shortDescription };
+  return {
+    title: service.name,
+    description: service.shortDescription,
+    openGraph: { ...publicOpenGraph, title: `${service.name} | NexaService`, description: service.shortDescription },
+  };
 }
 
 export default async function ServiceDetailPage({ params }: { params: Promise<{ slug: string }> }) {

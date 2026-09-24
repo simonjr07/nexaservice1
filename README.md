@@ -1,12 +1,16 @@
 # NexaService
 
-NexaService is a portfolio project for a fictional professional service business: a public website and private staff workspace in one Next.js application. It aims to demonstrate practical full-stack engineering while remaining small enough to complete.
+NexaService is a portfolio project for a fictional commercial workplace and facility services business: a public website and private staff workspace in one Next.js application. It aims to demonstrate practical full-stack engineering while remaining small enough to complete.
 
 Visitors will browse services, company information, and testimonials, then contact the business or request a quote. Staff will work with leads in a private dashboard. Administrators will also manage staff and selected public content. Public visitors will not create accounts.
 
 ## Current status
 
 The responsive public site and protected dashboard are implemented. Staff credentials authentication, role checks, login, logout, and a development-only first-administrator command are implemented in code. The public quote form at `/contact#request-quote` creates leads through server validation and Prisma; a fictional browser submission and durable PostgreSQL record were verified locally. The protected `/admin/leads` inbox lists and filters real leads; detail pages support status changes, private notes, and ADMIN-only assignment. `/admin` shows live enquiry counts, recent Leads, status distribution, six months of activity, and the most requested Services. ADMIN Service, Testimonial, Website Settings, and staff-account management are implemented. PostgreSQL transaction tests cover these workflows, while signed-in administrator browser verification remains open. CI and production deployment remain planned.
+
+The frontend retains its restrained visual design. Admin record lists use compact cards on narrower screens, with labelled fields and actions; public and protected route failures show generic retry states. Published Service and Testimonial content remains database-driven, and the portfolio site does not claim real customer endorsements.
+
+The public copy now focuses on practical support for commercial workplaces. An illustrative, AI-generated workplace image appears on the About page and in the social preview; it does not depict a real NexaService location. The navigation mark, favicon, and Apple touch icon share one simple visual identity. No real clients, staff, offices, or performance claims are represented.
 
 ## Stack
 

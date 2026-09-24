@@ -4,15 +4,22 @@ import { connection } from "next/server";
 import { EnquiryForm } from "@/components/public/enquiry-form";
 import { getPublicSettings } from "@/features/website-content/manage-content";
 import { leadIntakeRepository } from "@/server/db/repositories/lead-intake";
+import { publicOpenGraph } from "@/lib/public-social-image";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Tell us about your project or space and request a quote.",
+  description: "Tell NexaService about a commercial workplace or facility need and request a quote.",
+  openGraph: {
+    ...publicOpenGraph,
+    title: "Contact NexaService",
+    description: "Tell NexaService about a commercial workplace or facility need and request a quote.",
+  },
 };
 
 export default async function ContactPage({ searchParams }: { searchParams: Promise<{ serviceId?: string | string[] }> }) {
   await connection();
-  const services = await leadIntakeRepository.listPublishedServices().catch(() => []);
+  const publishedServices = await leadIntakeRepository.listPublishedServices().catch(() => null);
+  const services = publishedServices ?? [];
   const settings = await getPublicSettings();
   const requestedServiceId = (await searchParams).serviceId;
   const initialServiceId = typeof requestedServiceId === "string" && services.some((service) => service.id === requestedServiceId) ? requestedServiceId : "";
@@ -21,8 +28,8 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
     <section className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 md:py-28 lg:grid-cols-[0.8fr_1.2fr] lg:items-start lg:gap-20 lg:px-12">
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-sea">Get in touch</p>
-        <h1 className="mt-5 text-5xl font-semibold tracking-[-0.06em] sm:text-6xl">Every good project starts with a conversation.</h1>
-        <p className="mt-7 max-w-xl text-lg leading-9 text-muted">Tell us about the space you care for or the work you have in mind. A clear conversation helps shape the right next step.</p>
+        <h1 className="mt-5 text-5xl font-semibold tracking-[-0.06em] sm:text-6xl">Let’s talk about your workplace.</h1>
+        <p className="mt-7 max-w-xl text-lg leading-9 text-muted">Tell us about your commercial space, a facility issue, or the support you need. A clear conversation helps shape the right next step.</p>
         {(settings.email || settings.phone || settings.address) && <address className="mt-7 space-y-2 not-italic text-sm leading-7 text-muted">
           {settings.email && <p><a href={`mailto:${settings.email}`} className="font-semibold text-sea hover:underline">{settings.email}</a></p>}
           {settings.phone && <p><a href={`tel:${settings.phone.replace(/[^\d+]/g, "")}`} className="font-semibold text-sea hover:underline">{settings.phone}</a></p>}
@@ -38,7 +45,10 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
           <h2 className="mt-3 text-3xl font-semibold tracking-[-0.05em]">Tell us what you need.</h2>
           <p className="mt-3 text-sm leading-7 text-white/70">A few details will help us start the conversation.</p>
         </div>
-        <div className="p-7 sm:p-10"><EnquiryForm key={initialServiceId} services={services} initialServiceId={initialServiceId} businessName={settings.businessName} /></div>
+        <div className="p-7 sm:p-10">
+          {publishedServices === null && <p role="status" className="mb-6 rounded-xl border border-line bg-paper p-4 text-sm leading-6 text-muted">Service choices are unavailable right now. You can still send a general enquiry.</p>}
+          <EnquiryForm key={initialServiceId} services={services} initialServiceId={initialServiceId} businessName={settings.businessName} />
+        </div>
       </div>
     </section>
   );

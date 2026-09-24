@@ -16,19 +16,19 @@ export default async function Home() {
         <div className="mx-auto grid max-w-7xl gap-16 px-5 py-20 sm:px-8 md:py-28 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:px-12 lg:py-32">
           <div className="relative z-10">
             <p className="mb-7 inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.25em] text-accent">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent" /> Service, made simpler
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" /> Workplace services, made simpler
             </p>
             <h1 className="max-w-3xl text-5xl font-semibold leading-[1.06] tracking-[-0.065em] sm:text-6xl lg:text-7xl">
               Good work starts with <span className="text-accent">better care.</span>
             </h1>
             <p className="mt-7 max-w-xl text-base leading-8 text-white/70 sm:text-lg">
-              From the spaces you use every day to the projects you are ready to move forward, {settings.businessName} brings clear communication and practical support to the work that matters.
+              From everyday upkeep to one-off facility needs, {settings.businessName} helps businesses keep workplaces ready for the people who use them. Clear communication makes the next step easier.
             </p>
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-              <Link href="/contact#request-quote" className="inline-flex min-h-12 items-center justify-center gap-5 rounded-full bg-accent px-7 py-3.5 text-sm font-semibold text-deep transition-colors hover:bg-white">
+              <Link href="/contact#request-quote" className="inline-flex min-h-12 items-center justify-center gap-5 rounded-full bg-accent px-7 py-3.5 text-sm font-semibold text-deep transition-colors hover:bg-white motion-safe:active:translate-y-px">
                 Request a quote <span aria-hidden="true">↗</span>
               </Link>
-              <Link href="/services" className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/30 px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:border-white hover:bg-white/10">
+              <Link href="/services" className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/30 px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:border-white hover:bg-white/10 motion-safe:active:translate-y-px">
                 Explore services
               </Link>
             </div>
@@ -67,13 +67,13 @@ export default async function Home() {
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-sea">What we do</p>
-            <h2 id="services-heading" className="mt-4 max-w-2xl text-4xl font-semibold tracking-[-0.055em] sm:text-5xl">Support built around real needs.</h2>
+            <h2 id="services-heading" className="mt-4 max-w-2xl text-4xl font-semibold tracking-[-0.055em] sm:text-5xl">Practical support for the places you work.</h2>
           </div>
           <Link href="/services" className="w-fit rounded-sm text-sm font-semibold text-sea hover:underline">View all services <span aria-hidden="true">↗</span></Link>
         </div>
-        {services.length === 0 ? <div className="mt-10 rounded-3xl border border-line bg-white p-8"><h3 className="text-xl font-semibold">Service details are coming together.</h3><p className="mt-3 text-sm leading-7 text-muted">You can still tell us what kind of support you need.</p><Link href="/contact#request-quote" className="mt-5 inline-flex text-sm font-semibold text-sea hover:underline">Request a quote ↗</Link></div> : <div className="mt-10 grid gap-5 md:grid-cols-3">
+        {services.length === 0 ? <div className="mt-10 rounded-3xl border border-line bg-white p-8"><h3 className="text-xl font-semibold">Service details are coming together.</h3><p className="mt-3 text-sm leading-7 text-muted">Tell us about your workplace or facility need while the service catalogue is being prepared.</p><Link href="/contact#request-quote" className="mt-5 inline-flex text-sm font-semibold text-sea hover:underline">Request a quote ↗</Link></div> : <div className="mt-10 grid gap-5 md:grid-cols-3">
           {services.map((service, index) => (
-            <article key={service.id} className="group flex min-h-80 flex-col rounded-3xl border border-line bg-white p-7 transition-colors hover:border-sea/35 sm:p-8">
+            <article key={service.id} className="group flex min-h-80 flex-col rounded-3xl border border-line bg-white p-7 transition-[border-color,transform] hover:border-sea/35 motion-safe:hover:-translate-y-0.5 sm:p-8">
               <div className="flex items-start justify-between">
                 <span className="text-xs font-semibold tracking-[0.2em] text-sea">{String(index + 1).padStart(2, "0")} / SERVICE</span>
                 <span aria-hidden="true" className="grid h-12 w-12 place-items-center rounded-2xl bg-paper text-xl text-sea transition-colors group-hover:bg-accent">↗</span>
@@ -93,12 +93,12 @@ export default async function Home() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-sea">Why {settings.businessName}</p>
             <h2 id="why-heading" className="mt-4 max-w-md text-4xl font-semibold tracking-[-0.055em] sm:text-5xl">A more considered way to get things done.</h2>
-            <p className="mt-6 max-w-md text-base leading-8 text-muted">Good service should feel straightforward. We put care into the details, keep the conversation clear, and make room for the work to be done well.</p>
+            <p className="mt-6 max-w-md text-base leading-8 text-muted">A well-run workplace depends on practical details. We focus on clear requests, sensible coordination, and the care needed to keep daily operations moving.</p>
           </div>
           <div className="divide-y divide-ink/15 border-t border-ink/15">
             {[
               ["01", "Clear from the start", "Understand the need, agree on the next step, and keep communication easy to follow."],
-              ["02", "Attention to the details", "Approach each space and project with care rather than a one-size-fits-all checklist."],
+              ["02", "Attention to the details", "Approach each workplace request with care rather than a one-size-fits-all checklist."],
               ["03", "Built on follow-through", "Keep the work moving with a practical process and a clear point of contact."],
             ].map(([number, title, description]) => (
               <div key={number} className="grid gap-3 py-7 sm:grid-cols-[3rem_1fr]">
@@ -124,7 +124,7 @@ export default async function Home() {
         </div>
         <ol className="mt-12 grid gap-5 md:grid-cols-3">
           {[
-            ["01", "Tell us what you need", "Share the space, project, or challenge you would like help with."],
+            ["01", "Tell us what you need", "Share the workplace, facility issue, or ongoing support you have in mind."],
             ["02", "Shape a practical plan", "We clarify the scope and agree on a sensible way forward."],
             ["03", "Move forward with care", "The work gets the attention and follow-through it deserves."],
           ].map(([number, title, description]) => (
@@ -139,7 +139,7 @@ export default async function Home() {
 
       <section className="px-5 pb-20 sm:px-8 lg:px-12">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 rounded-[2rem] bg-sea px-8 py-12 text-white sm:px-12 md:flex-row md:items-center md:py-16">
-          <div><p className="text-xs font-semibold uppercase tracking-[0.25em] text-accent">Ready when you are</p><h2 className="mt-4 max-w-xl text-3xl font-semibold tracking-[-0.05em] sm:text-4xl">Let’s make the next step easier.</h2><p className="mt-4 max-w-lg text-sm leading-7 text-white/75">Explore how {settings.businessName} could support your space or project.</p></div>
+          <div><p className="text-xs font-semibold uppercase tracking-[0.25em] text-accent">Ready when you are</p><h2 className="mt-4 max-w-xl text-3xl font-semibold tracking-[-0.05em] sm:text-4xl">Let’s make the next step easier.</h2><p className="mt-4 max-w-lg text-sm leading-7 text-white/75">Tell {settings.businessName} what your workplace needs and start with a clear conversation.</p></div>
           <Link href="/contact#request-quote" className="inline-flex min-h-12 shrink-0 items-center justify-center gap-5 rounded-full bg-accent px-6 py-3.5 text-sm font-semibold text-deep hover:bg-white">Request a quote <span aria-hidden="true">↗</span></Link>
         </div>
       </section>

@@ -37,7 +37,7 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+    <form onSubmit={handleSubmit} aria-busy={pending} className="mt-8 space-y-5">
       <div>
         <label htmlFor="staff-email" className="block text-sm font-semibold text-ink">Email</label>
         <div className="relative mt-2">
@@ -45,13 +45,13 @@ export function LoginForm() {
             <rect x="3" y="5" width="18" height="14" rx="2" />
             <path d="m3 7 9 6 9-6" />
           </svg>
-          <input id="staff-email" name="email" type="email" autoComplete="username" autoCapitalize="none" required maxLength={254} disabled={pending} className="min-h-12 w-full rounded-xl border border-line py-3 pl-12 pr-4 text-ink outline-none transition-colors focus-visible:border-sea focus-visible:ring-2 focus-visible:ring-sea/20 disabled:opacity-60" />
+          <input id="staff-email" name="email" type="email" autoComplete="username" autoCapitalize="none" required maxLength={254} disabled={pending} aria-describedby={error ? "login-error" : undefined} className="min-h-12 w-full rounded-xl border border-line py-3 pl-12 pr-4 text-ink outline-none transition-colors focus-visible:border-sea focus-visible:ring-2 focus-visible:ring-sea/20 disabled:opacity-60" />
         </div>
       </div>
       <div>
         <label htmlFor="staff-password" className="block text-sm font-semibold text-ink">Password</label>
         <div className="relative mt-2">
-          <input id="staff-password" name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" required disabled={pending} className="min-h-12 w-full rounded-xl border border-line py-3 pl-4 pr-14 text-ink outline-none transition-colors focus-visible:border-sea focus-visible:ring-2 focus-visible:ring-sea/20 disabled:opacity-60" />
+          <input id="staff-password" name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" required disabled={pending} aria-describedby={error ? "login-error" : undefined} className="min-h-12 w-full rounded-xl border border-line py-3 pl-4 pr-14 text-ink outline-none transition-colors focus-visible:border-sea focus-visible:ring-2 focus-visible:ring-sea/20 disabled:opacity-60" />
           <button type="button" aria-controls="staff-password" aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword} onClick={() => setShowPassword((visible) => !visible)} className="absolute right-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg text-muted transition-colors hover:bg-[#f2f5f2] hover:text-sea focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-sea">
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
               <path d="M2.25 12s3.5-6 9.75-6 9.75 6 9.75 6-3.5 6-9.75 6-9.75-6-9.75-6Z" />
@@ -61,7 +61,7 @@ export function LoginForm() {
           </button>
         </div>
       </div>
-      {error && <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
+      {error && <p id="login-error" role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       <button type="submit" disabled={pending} className="min-h-12 w-full rounded-full bg-deep px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-sea focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sea disabled:cursor-wait disabled:opacity-65">
         {pending ? "Signing in…" : "Sign in to workspace"}
       </button>

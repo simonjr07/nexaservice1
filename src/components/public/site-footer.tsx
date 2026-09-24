@@ -8,7 +8,7 @@ export function SiteFooter({ settings }: { settings: { businessName: string; ema
         <div className="max-w-sm">
           <Brand inverse businessName={settings.businessName} />
           <p className="mt-6 text-sm leading-7 text-white/65">
-            Practical support for the places you work and the projects you care about.
+            Practical care and clear coordination for commercial workplaces and the people who use them.
           </p>
         </div>
         <div>

@@ -68,17 +68,17 @@ export default async function LeadsPage({ searchParams }: { searchParams: Search
         </div>
       ) : (
         <div className="mt-8 overflow-x-auto rounded-2xl border border-line bg-white">
-          <table className="min-w-[900px] w-full border-collapse text-left text-sm">
+          <table className="admin-records-table w-full border-collapse text-left text-sm">
             <thead className="bg-[#f7f9f7] text-xs font-semibold uppercase tracking-[0.08em] text-muted"><tr><th scope="col" className="px-5 py-4">Lead</th><th scope="col" className="px-5 py-4">Company</th><th scope="col" className="px-5 py-4">Service</th><th scope="col" className="px-5 py-4">Status</th><th scope="col" className="px-5 py-4">Assigned to</th><th scope="col" className="px-5 py-4">Received</th></tr></thead>
             <tbody className="divide-y divide-line">
               {items.map((lead) => (
                 <tr key={lead.id} className="align-top hover:bg-[#f8faf8]">
                   <th scope="row" className="px-5 py-4 font-normal"><Link href={`/admin/leads/${lead.id}`} className="font-semibold text-ink underline-offset-4 hover:text-sea hover:underline">{lead.name}</Link><span className="mt-1 block break-all text-xs text-muted">{lead.email}</span></th>
-                  <td className="px-5 py-4 text-muted">{lead.company ?? "—"}</td>
-                  <td className="px-5 py-4 text-muted">{lead.service?.name ?? "General enquiry"}</td>
-                  <td className="px-5 py-4"><LeadStatusBadge status={lead.status} /></td>
-                  <td className="px-5 py-4 text-muted">{lead.assignedUser?.name ?? "Unassigned"}</td>
-                  <td className="px-5 py-4 text-muted"><time dateTime={lead.createdAt.toISOString()}>{formatLeadDate(lead.createdAt)}</time></td>
+                  <td data-label="Company" className="px-5 py-4 text-muted">{lead.company ?? "—"}</td>
+                  <td data-label="Service" className="px-5 py-4 text-muted">{lead.service?.name ?? "General enquiry"}</td>
+                  <td data-label="Status" className="px-5 py-4"><LeadStatusBadge status={lead.status} /></td>
+                  <td data-label="Assigned to" className="px-5 py-4 text-muted">{lead.assignedUser?.name ?? "Unassigned"}</td>
+                  <td data-label="Received" className="px-5 py-4 text-muted"><time dateTime={lead.createdAt.toISOString()}>{formatLeadDate(lead.createdAt)}</time></td>
                 </tr>
               ))}
             </tbody>

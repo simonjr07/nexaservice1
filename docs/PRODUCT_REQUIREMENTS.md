@@ -2,7 +2,7 @@
 
 ## Business problem
 
-A service business needs a credible public presence that converts interest into actionable enquiries. Staff need one private place to review and progress those leads without exposing customer information. NexaService demonstrates that complete workflow as a manageable portfolio project. The business identity, copy, and initial service catalogue remain pending.
+A service business needs a credible public presence that converts interest into actionable enquiries. Staff need one private place to review and progress those leads without exposing customer information. NexaService demonstrates that complete workflow as a manageable portfolio project. Its approved fictional positioning is a modern commercial workplace and facility services company, broad enough for maintenance, inspections, cleaning or service coordination, and general operational support. The initial service catalogue and final production copy remain pending.
 
 ## Target users
 

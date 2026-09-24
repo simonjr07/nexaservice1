@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState, type FormEvent } from "react";
-import Link from "next/link";
 import { submitEnquiry } from "@/app/(public)/contact/actions";
 import { initialEnquiryState, type EnquiryField } from "@/features/enquiry/validation";
 
@@ -17,11 +16,16 @@ export function EnquiryForm({ services, initialServiceId = "", businessName = "N
   const [state, formAction, pending] = useActionState(submitEnquiry, initialEnquiryState);
   const [values, setValues] = useState<Values>(() => ({ ...initialValues, serviceId: initialServiceId }));
   const submitting = useRef(false);
+  const formRef = useRef<HTMLFormElement>(null);
   const errors = state.status === "invalid" ? state.fieldErrors : {};
 
   useEffect(() => {
     if (!pending) submitting.current = false;
   }, [pending, state]);
+
+  useEffect(() => {
+    if (state.status === "invalid") formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+  }, [state]);
 
   function setField(field: EnquiryField, value: string) {
     setValues((current) => ({ ...current, [field]: value }));
@@ -36,15 +40,15 @@ export function EnquiryForm({ services, initialServiceId = "", businessName = "N
     return (
       <div role="status" className="rounded-3xl border border-[#d7e4d2] bg-[#eaf0e8] p-8 sm:p-10">
         <span aria-hidden="true" className="grid h-12 w-12 place-items-center rounded-full bg-sea text-xl text-white">✓</span>
-        <h3 className="mt-6 text-2xl font-semibold tracking-[-0.04em]">Thanks for reaching out.</h3>
-        <p className="mt-3 text-sm leading-7 text-muted">Your enquiry has been received. The {businessName} team can follow up using the details you provided.</p>
-        <Link href="/contact#request-quote" className="mt-6 inline-block text-sm font-semibold text-sea underline-offset-4 hover:underline">Send another enquiry ↗</Link>
+        <h3 className="mt-6 text-2xl font-semibold tracking-[-0.04em]">Enquiry received.</h3>
+        <p className="mt-3 text-sm leading-7 text-muted">Thanks for sharing the details. {businessName} can use them to follow up about your workplace request.</p>
+        <a href="/contact#request-quote" className="mt-6 inline-block text-sm font-semibold text-sea underline-offset-4 hover:underline">Send another enquiry ↗</a>
       </div>
     );
   }
 
   return (
-    <form action={formAction} onSubmit={preventSecondSubmit} noValidate className="space-y-6" aria-label="Request a quote">
+    <form ref={formRef} action={formAction} onSubmit={preventSecondSubmit} noValidate aria-busy={pending} className="space-y-6" aria-label="Request a quote">
       <fieldset disabled={pending} className="space-y-6 disabled:opacity-70">
         <div className="grid gap-6 sm:grid-cols-2">
           <div>
@@ -70,7 +74,7 @@ export function EnquiryForm({ services, initialServiceId = "", businessName = "N
         </div>
         <div>
           <label htmlFor="enquiry-service" className="block text-sm font-semibold">Service <span className="font-normal text-muted">(optional)</span></label>
-          <select id="enquiry-service" name="serviceId" value={values.serviceId} onChange={(event) => setField("serviceId", event.target.value)} aria-invalid={!!errors.serviceId} aria-describedby={errors.serviceId ? "enquiry-service-error" : "enquiry-service-help"} className={inputClass}>
+          <select id="enquiry-service" name="serviceId" value={values.serviceId} onChange={(event) => setField("serviceId", event.target.value)} aria-invalid={!!errors.serviceId} aria-describedby={errors.serviceId ? "enquiry-service-help enquiry-service-error" : "enquiry-service-help"} className={inputClass}>
             <option value="">Not sure yet / general enquiry</option>
             {services.map((service) => <option key={service.id} value={service.id}>{service.name}</option>)}
           </select>
@@ -79,7 +83,7 @@ export function EnquiryForm({ services, initialServiceId = "", businessName = "N
         </div>
         <div>
           <label htmlFor="enquiry-message" className="block text-sm font-semibold">How can we help? <span aria-hidden="true" className="text-sea">*</span></label>
-          <textarea id="enquiry-message" name="message" rows={6} required minLength={10} maxLength={3000} value={values.message} onChange={(event) => setField("message", event.target.value)} placeholder="Tell us about your space, project, or the support you need." aria-invalid={!!errors.message} aria-describedby={errors.message ? "enquiry-message-error" : undefined} className={inputClass} />
+          <textarea id="enquiry-message" name="message" rows={6} required minLength={10} maxLength={3000} value={values.message} onChange={(event) => setField("message", event.target.value)} placeholder="Tell us about your workplace, a facility issue, or the support you need." aria-invalid={!!errors.message} aria-describedby={errors.message ? "enquiry-message-error" : undefined} className={inputClass} />
           {errors.message && <p id="enquiry-message-error" className="mt-2 text-sm text-red-800">{errors.message}</p>}
         </div>
         <div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden">
@@ -92,6 +96,7 @@ export function EnquiryForm({ services, initialServiceId = "", businessName = "N
       <button type="submit" disabled={pending} className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-deep px-7 py-3 text-sm font-semibold text-white transition-colors hover:bg-sea focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sea disabled:cursor-wait disabled:opacity-65 sm:w-auto">
         {pending ? "Sending enquiry…" : "Send enquiry ↗"}
       </button>
+      {pending && <span role="status" className="sr-only">Sending your enquiry.</span>}
       <p className="text-xs leading-5 text-muted">Fields marked * are required. Please do not include sensitive personal information.</p>
     </form>
   );

@@ -8,8 +8,15 @@ export async function generateMetadata(): Promise<Metadata> {
   await connection();
   const { businessName } = await getPublicSettings();
   return {
-    title: { default: `${businessName} | Thoughtful service, handled well`, template: `%s | ${businessName}` },
-    description: `${businessName} offers practical care and clear communication for spaces and projects.`,
+    title: { absolute: `${businessName} | Workplace services, handled well`, template: `%s | ${businessName}` },
+    description: `${businessName} offers practical care and clear coordination for commercial workplaces and facilities.`,
+    openGraph: {
+      type: "website",
+      siteName: businessName,
+      title: `${businessName} | Workplace services, handled well`,
+      description: "Practical care and clear coordination for commercial workplaces and facilities.",
+    },
+    twitter: { card: "summary_large_image" },
   };
 }
 

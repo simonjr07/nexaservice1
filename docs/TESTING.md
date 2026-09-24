@@ -2,6 +2,10 @@
 
 Vitest covers authentication, staff-account management, public lead intake, protected lead management, dashboard analytics, Service management/publication, Testimonial management/publication, and singleton Website Settings. Component and browser suites remain planned.
 
+For frontend review, check public pages and `/admin/login` at approximately 375, 768, 1024, and 1440 CSS pixels. Check that the mobile menu, form controls, focus outlines, success/error feedback, and service 404 page remain usable without page-level horizontal overflow. With an authorized local session, review `/admin`, leads, services, testimonials, settings, and users at the same widths; record lists should become labelled cards below 1200 CSS pixels. The protected browser review requires a real session and must be reported separately from route or unit checks.
+
+For the brand pass, confirm that `/favicon.ico`, `/icon.svg`, and `/apple-icon.png` load and match the navigation mark; inspect the public Open Graph image metadata, the About image crop and disclosure, and the enquiry form's first-invalid-field focus. Never submit real customer details during visual checks.
+
 ## Unit tests — Vitest
 
 Current `tests/auth` coverage checks valid credentials, incorrect and unknown credentials, email normalization, malformed input, minimal session output, visitor redirect, STAFF/ADMIN dashboard admission, STAFF denial of ADMIN access, and deleted-account denial. Run `npm test`. These default tests mock the database. Future pure rule tests should cover approved status-transition rules and metrics.
