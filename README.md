@@ -14,7 +14,7 @@ Next.js App Router, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, Au
 
 ## Local setup
 
-Run `npm install`, copy `.env.example` to an ignored `.env`, and set local PostgreSQL credentials, a matching `DATABASE_URL`, a long random `NEXTAUTH_SECRET`, and `NEXTAUTH_URL=http://localhost:3000`. Run `docker compose up -d db`, wait for a healthy database in `docker compose ps`, then run `npm run db:migrate` and `npm run db:generate`. Follow [development admin provisioning](docs/SECURITY.md#development-admin-provisioning) to create a local ADMIN; no default account exists. Start the app with `npm run dev` and sign in at `/admin/login`. Stop PostgreSQL with `docker compose down` to keep its named volume.
+Run `npm install`, copy `.env.example` to an ignored `.env`, and set local PostgreSQL credentials, a matching `DATABASE_URL`, a long random `NEXTAUTH_SECRET`, and `NEXTAUTH_URL=http://localhost:3000`. Run `docker compose up -d db`, wait for a healthy database in `docker compose ps`, then run `npm run db:migrate` and `npm run db:generate`. Follow [development admin provisioning](docs/SECURITY.md#development-admin-provisioning) to create a local ADMIN; no default account exists. Start the app with `npm run dev`, which regenerates Prisma Client before `next dev`, and sign in at `/admin/login`. Stop PostgreSQL with `docker compose down` to keep its named volume.
 
 Visitors can browse published Services at `/services`, open `/services/[slug]`, and request a quote with that Service preselected. They can also submit a general enquiry at `/contact#request-quote` without an account. A selected Service must be published when the enquiry is submitted. Run `$env:RUN_DATABASE_TESTS = '1'; npm test` in PowerShell to include rollback-based PostgreSQL tests.
 

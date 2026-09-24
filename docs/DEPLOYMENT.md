@@ -14,7 +14,7 @@ Prerequisites: Node.js and npm supported by the installed packages, Docker Deskt
 4. Run `npm install`, then `npm run db:validate` and `npm run db:generate`. The install and build scripts also generate Prisma Client; validation/generation do not require a live database.
 5. Run `npm run db:migrate` to apply checked-in migrations to the local database, including the account-status migration that leaves existing Users ACTIVE. For a later schema change, use `npm run db:migrate -- --name descriptive_change`. Run `npx prisma migrate status` to confirm migration state.
 6. Supply your own local administrator name, email, and password and run the explicit [provisioning command](SECURITY.md#development-admin-provisioning) for the first ADMIN. The command requires `NODE_ENV=development` and does not run automatically. Thereafter an active ADMIN can manage internal accounts at `/admin/users`; no public registration is available.
-7. Run `npm run dev`. Visit `/admin/login` and verify sign-in, role-appropriate placeholders, sign-out, and that `/admin` redirects back to login after sign-out. The protected workspace checks the current `User` row on each request.
+7. Run `npm run dev`. npm runs `predev` first to regenerate Prisma Client, then starts the unchanged `next dev` command. Visit `/admin/login` and verify sign-in, role-appropriate placeholders, sign-out, and that `/admin` redirects back to login after sign-out. The protected workspace checks the current `User` row on each request.
 
 Stop the container with `docker compose down`; this keeps the named volume. Do **not** use `docker compose down -v` unless you intend to delete all local database data. Changing `POSTGRES_USER`, `POSTGRES_PASSWORD`, or `POSTGRES_DB` after the volume has been initialized does not update existing PostgreSQL credentials; plan such changes deliberately.
 
@@ -22,7 +22,7 @@ Stop the container with `docker compose down`; this keeps the named volume. Do *
 
 Prisma CLI, Client, and PostgreSQL adapter are on the compatible 7.10.0 stable line. At selection time, npm's `latest` tag pointed to Prisma 8.0.0-rc.15, a release candidate, so this project chose the supported stable line rather than a prerelease. Prisma 7.10 uses `prisma7.config.ts` for the connection URL and `prisma/schema.prisma` for the datasource provider and Client generator. The generated Client goes to ignored `src/generated/prisma`; imports belong in server code only. `src/server/db/client.ts` creates a single adapter-backed Client and requires `DATABASE_URL` at runtime. Checked-in SQL migrations cover the initial schema and User account status.
 
-Useful commands: `npm run db:validate`, `npm run db:generate`, `npm run db:migrate`, `npx prisma migrate status`, `npm run lint`, `npx tsc --noEmit`, and `npm run build`. Prisma 7 does not generate Client automatically after `migrate dev`; run `db:generate` after schema changes. Never use a reset command against data that must be retained.
+Useful commands: `npm run db:validate`, `npm run db:generate`, `npm run db:migrate`, `npx prisma migrate status`, `npm run lint`, `npx tsc --noEmit`, and `npm run build`. Prisma 7 does not generate Client automatically after `migrate dev`; run `db:generate` after schema changes when using Prisma outside `npm run dev`. The `predev` hook regenerates Client at every development startup. Never use a reset command against data that must be retained.
 
 ## Development data
 
