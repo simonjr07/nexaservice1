@@ -36,7 +36,7 @@ Complete: Documentation for current state complete: README, case study, architec
 
 Complete: Credential-bearing environment files ignored. Files beginning with .env are ignored except the non-secret .env.example. No local or Neon connection value belongs in Git.
 
-Complete: Production ADMIN tooling tested only on a disposable database: explicit bootstrap and recovery CLIs have guards, bcrypt checks, and database tests. Neither has run on Neon.
+Complete: Production ADMIN tooling tested on a disposable database. The bootstrap and recovery CLIs have guards, bcrypt checks, and database tests. The engineer reports failed Neon bootstrap attempts with no ADMIN created; a successful production run remains pending.
 
 Pending: Current branch CI passing: requires a remote run after review and a permitted push/PR; local checks alone do not close this item.
 

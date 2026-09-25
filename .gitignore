@@ -37,3 +37,4 @@ next-env.d.ts
 /docs/Images/admin-staff-accounts-private.png
 /docs/Images/mobile-lead-inbox-private.png
 .env.neon.local
+.env.neon.direct.local

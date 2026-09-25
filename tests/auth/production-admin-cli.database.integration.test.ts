@@ -84,6 +84,19 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "1")("production ADMIN CLIs o
     expect(run(script, [confirmBootstrap], { ADMIN_PASSWORD: "short" }).status).not.toBe(0);
     expect(Number((await disposableClient.query(`SELECT count(*)::int AS count FROM "User"`)).rows[0].count)).toBe(0);
 
+    // Exceed Prisma's default five-second interactive transaction timeout.
+    await disposableClient.query(`
+      CREATE FUNCTION delay_initial_admin_insert() RETURNS trigger AS $$
+      BEGIN
+        PERFORM pg_sleep(6);
+        RETURN NEW;
+      END;
+      $$ LANGUAGE plpgsql;
+      CREATE TRIGGER delay_initial_admin_insert
+      BEFORE INSERT ON "User"
+      FOR EACH ROW EXECUTE FUNCTION delay_initial_admin_insert();
+    `);
+
     const createdResult = run(script, [confirmBootstrap]);
     expect(createdResult.status).toBe(0);
     expect(`${createdResult.stdout}${createdResult.stderr}`).not.toContain(email);

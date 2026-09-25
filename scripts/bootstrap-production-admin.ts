@@ -38,7 +38,7 @@ async function main() {
         },
         select: { id: true },
       });
-    }, { isolationLevel: "Serializable" });
+    }, { isolationLevel: "Serializable", maxWait: 20000, timeout: 30000 });
     console.log("Exactly one initial production ADMIN created.");
   } finally {
     await prisma.$disconnect();
