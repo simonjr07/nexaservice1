@@ -54,6 +54,6 @@ async function main() {
 }
 
 main().catch((error: unknown) => {
-  console.error(error instanceof RecoveryRefused ? error.message : `Production ADMIN recovery failed (${error instanceof Error ? error.name : "unknown"}).`);
+  console.error(error instanceof RecoveryRefused ? error.message : "Production ADMIN recovery failed.");
   process.exitCode = 1;
 });

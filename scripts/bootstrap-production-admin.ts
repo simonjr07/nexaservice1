@@ -46,6 +46,6 @@ async function main() {
 }
 
 main().catch((error: unknown) => {
-  console.error(error instanceof BootstrapRefused ? error.message : `Production ADMIN bootstrap failed (${error instanceof Error ? error.name : "unknown"}).`);
+  console.error(error instanceof BootstrapRefused ? error.message : "Production ADMIN bootstrap failed.");
   process.exitCode = 1;
 });

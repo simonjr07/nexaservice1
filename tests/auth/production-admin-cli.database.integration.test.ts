@@ -20,10 +20,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "1")("production ADMIN CLIs o
   let baseClient: Client;
   let disposableClient: Client;
   let disposableUrl: string;
-  let created = false;
+  let localUrl: string | undefined;
 
   function run(script: string, args: string[], overrides: Record<string, string> = {}) {
-    return spawnSync(process.execPath, [tsxCli, script, ...args], {
+    const result = spawnSync(process.execPath, [tsxCli, script, ...args], {
       cwd: process.cwd(),
       encoding: "utf8",
       timeout: 45_000,
@@ -40,6 +40,13 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "1")("production ADMIN CLIs o
         ...overrides,
       },
     });
+    const output = `${result.stdout}${result.stderr}`;
+    for (const secret of [email, firstPassword, replacementPassword, disposableUrl, overrides.ADMIN_EMAIL, overrides.ADMIN_PASSWORD]) {
+      if (secret && secret.length > 8 && output.includes(secret)) {
+        throw new Error("ADMIN CLI output contained sensitive input.");
+      }
+    }
+    return result;
   }
 
   beforeAll(async () => {
@@ -51,31 +58,36 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "1")("production ADMIN CLIs o
     if (!["localhost", "127.0.0.1", "[::1]"].includes(parsed.hostname)) {
       throw new Error("Production ADMIN CLI tests require a local PostgreSQL server.");
     }
+    localUrl = baseUrl;
     parsed.pathname = `/${databaseName}`;
     disposableUrl = parsed.toString();
 
-    baseClient = new Client({ connectionString: baseUrl, connectionTimeoutMillis: 5_000, query_timeout: 10_000 });
+    baseClient = new Client({ connectionString: baseUrl, connectionTimeoutMillis: 5_000, query_timeout: 30_000 });
     await baseClient.connect();
     await baseClient.query(`CREATE DATABASE "${databaseName}"`);
-    created = true;
-    disposableClient = new Client({ connectionString: disposableUrl, connectionTimeoutMillis: 5_000, query_timeout: 10_000 });
+    disposableClient = new Client({ connectionString: disposableUrl, connectionTimeoutMillis: 5_000, query_timeout: 30_000 });
     await disposableClient.connect();
     const migrationsDir = join(process.cwd(), "prisma", "migrations");
     for (const directory of readdirSync(migrationsDir).filter((item) => /^\d+_/.test(item)).sort()) {
       await disposableClient.query(readFileSync(join(migrationsDir, directory, "migration.sql"), "utf8"));
     }
-  }, 60_000);
+  }, 90_000);
 
   afterAll(async () => {
     if (disposableClient) await disposableClient.end();
-    if (baseClient) {
+    if (baseClient) await baseClient.end().catch(() => undefined);
+    if (localUrl) {
+      // CREATE DATABASE can finish after a query timeout; inspect the exact random name.
+      const cleanup = new Client({ connectionString: localUrl, connectionTimeoutMillis: 5_000 });
+      await cleanup.connect();
       try {
-        if (created) await baseClient.query(`DROP DATABASE "${databaseName}" WITH (FORCE)`);
+        const exists = await cleanup.query("SELECT 1 FROM pg_database WHERE datname = $1", [databaseName]);
+        if (exists.rowCount === 1) await cleanup.query(`DROP DATABASE "${databaseName}" WITH (FORCE)`);
       } finally {
-        await baseClient.end();
+        await cleanup.end();
       }
     }
-  }, 30_000);
+  }, 60_000);
 
   it("requires production and an explicit flag, then creates one ACTIVE ADMIN with a bcrypt hash", async () => {
     const script = "scripts/bootstrap-production-admin.ts";
@@ -86,14 +98,13 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "1")("production ADMIN CLIs o
 
     const createdResult = run(script, [confirmBootstrap]);
     expect(createdResult.status).toBe(0);
-    expect(`${createdResult.stdout}${createdResult.stderr}`).not.toContain(email);
-    expect(`${createdResult.stdout}${createdResult.stderr}`).not.toContain(firstPassword);
     const rows = (await disposableClient.query(`SELECT "role", "status", "passwordHash" FROM "User"`)).rows;
     expect(rows.length).toBe(1);
     expect(rows[0].role).toBe("ADMIN");
     expect(rows[0].status).toBe("ACTIVE");
     expect(await compare(firstPassword, rows[0].passwordHash)).toBe(true);
     expect(/^\$2[aby]\$12\$/.test(rows[0].passwordHash)).toBe(true);
+    if (`${createdResult.stdout}${createdResult.stderr}`.includes(rows[0].passwordHash)) throw new Error("ADMIN CLI output contained a password hash.");
 
     const repeated = run(script, [confirmBootstrap], { ADMIN_EMAIL: `other-${randomUUID()}@example.test` });
     expect(repeated.status).not.toBe(0);
@@ -110,8 +121,6 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "1")("production ADMIN CLIs o
 
     const recovered = run(script, [confirmRecovery], { ADMIN_PASSWORD: replacementPassword });
     expect(recovered.status).toBe(0);
-    expect(`${recovered.stdout}${recovered.stderr}`).not.toContain(email);
-    expect(`${recovered.stdout}${recovered.stderr}`).not.toContain(replacementPassword);
     const afterRow = (await disposableClient.query(`SELECT "name", "email", "role", "status", "createdAt", "updatedAt", "passwordHash" FROM "User"`)).rows[0];
     expect({
       name: afterRow.name, email: afterRow.email, role: afterRow.role, status: afterRow.status,
@@ -119,6 +128,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "1")("production ADMIN CLIs o
     }).toEqual(beforeRow);
     expect(await compare(firstPassword, afterRow.passwordHash)).toBe(false);
     expect(await compare(replacementPassword, afterRow.passwordHash)).toBe(true);
+    if (`${recovered.stdout}${recovered.stderr}`.includes(afterRow.passwordHash)) throw new Error("ADMIN CLI output contained a password hash.");
     expect(Number((await disposableClient.query(`SELECT count(*)::int AS count FROM "User"`)).rows[0].count)).toBe(1);
   }, 90_000);
 });
