@@ -1,53 +1,88 @@
 # NexaService
 
-NexaService is a portfolio project for a fictional commercial workplace and facility services business: a public website and private staff workspace in one Next.js application. It aims to demonstrate practical full-stack engineering while remaining small enough to complete.
+NexaService is a **fictional commercial workplace and facility-services demo**. It pairs a public service website with a private staff workspace in one Next.js application. It is a portfolio engineering project, not an operating business: there are no real customers, services for sale, or business follow-ups. The enquiry form works for fictional demonstration data only.
 
-Visitors will browse services, company information, and testimonials, then contact the business or request a quote. Staff will work with leads in a private dashboard. Administrators will also manage staff and selected public content. Public visitors will not create accounts.
+The problem it explores is straightforward: a visitor needs a clear way to understand services and send an enquiry, while staff need a protected place to review, qualify, and assign the resulting lead. The project shows the full path from public form to relational data to role-controlled operations without adding a separate backend.
 
-## Current status
+> **Deployment status:** Local development and CI are working. The Neon Free demo database has the three checked-in migrations. No application is deployed, no production ADMIN has been created, and no hosted smoke test or live URL exists. Vercel Hobby deployment is paused until Vercel confirms in writing that this specific fictional portfolio use is permitted. [Release details](docs/DEPLOYMENT.md) · [Definition of Done](docs/DEFINITION_OF_DONE.md)
 
-The responsive public site and protected dashboard are implemented. Staff credentials authentication, role checks, login, logout, and a development-only first-administrator command are implemented in code. The public quote form at `/contact#request-quote` creates leads through server validation and Prisma; a fictional browser submission and durable PostgreSQL record were verified locally. The protected `/admin/leads` inbox lists and filters real leads; detail pages support status changes, private notes, and ADMIN-only assignment. `/admin` shows live enquiry counts, recent Leads, status distribution, six months of activity, and the most requested Services. ADMIN Service, Testimonial, Website Settings, and staff-account management are implemented. PostgreSQL transaction tests cover these workflows, while signed-in administrator browser verification remains open. The first remote CI run passed on `main`; production deployment remains planned. The Neon Free project for the fictional-data trial in London is reachable, and its three checked-in migrations are applied and verified. Vercel Hobby is requested for a non-commercial demo, pending written confirmation from Vercel that this specific portfolio use is permitted. No Vercel project or production administrator is provisioned.
+## People and workflows
 
-The frontend retains its restrained visual design. Admin record lists use compact cards on narrower screens, with labelled fields and actions; public and protected route failures show generic retry states. Published Service and Testimonial content remains database-driven, and the portfolio site does not claim real customer endorsements.
+| Role | Implemented experience |
+| --- | --- |
+| Visitor | Browse the homepage, About page, published Services and detail pages, and labeled fictional example Testimonials. Submit a general demo enquiry or choose a published Service; no account is needed. |
+| STAFF | Sign in; view and search/filter Leads; read details and private notes; update status; add notes; view operational dashboard metrics. The current policy lets STAFF see all Leads. |
+| ADMIN | All STAFF work, plus Lead assignment, Service and Testimonial draft/publication management, Site Settings, and staff account creation, editing, disablement, and reactivation. |
 
-The public copy now focuses on practical support for commercial workplaces. An illustrative, AI-generated workplace image appears on the About page and in the social preview; it does not depict a real NexaService location. The navigation mark, favicon, and Apple touch icon share one simple visual identity. No real clients, staff, offices, or performance claims are represented.
+A valid enquiry is server-validated, optionally linked to a **currently published** Service, then stored as a `NEW`, unassigned Lead. STAFF or ADMIN can move it through `CONTACTED`, `QUALIFIED`, `WON`, or `LOST` and add internal notes; only ADMIN can assign an active user. Unpublishing a Service removes it from public selection while preserving its historical Lead links. Dashboard counts cover current statuses, the current UTC month, six months of activity, recent Leads, and linked-Service enquiry counts. They are enquiry metrics, not revenue or confirmed sales.
 
-Task #13 adds shared PostgreSQL login and enquiry throttling, baseline security response headers, and a safe public wait state for limited enquiries. Apply the new additive migration before starting the hardened app. A GitHub Actions workflow now checks a clean PostgreSQL migration, code quality, database tests, and production build on pull requests and pushes to `main`; it does not deploy. Production edge controls, a full nonce-based CSP, and live deployment verification remain open.
+## Architecture
 
-## Stack
+```mermaid
+flowchart TD
+    B[Browser] --> N[Next.js App Router<br/>public site and protected dashboard]
+    N --> S[Server Actions, Auth.js<br/>and business services]
+    S --> R[Server-only Prisma repositories]
+    R --> P[(PostgreSQL)]
+    P --- L[Local: Docker Compose]
+    P --- H[Hosted demo: Neon Free<br/>schema migrated; app not connected]
+    G[GitHub] --> C[GitHub Actions<br/>migrations, lint, types, tests, build]
+    C -. no automatic deploy .-> V[Vercel: planned<br/>approval pending]
+```
 
-Next.js App Router, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, Auth.js/NextAuth.js, and bcryptjs are in use. Vitest covers authentication, staff management, public enquiry intake, lead management, dashboard analytics, Service publication, Testimonial publication, Website Settings, and production ADMIN CLI behavior. GitHub Actions CI passed on `main`; Task #15 changes still need their own branch run. React Hook Form, React Testing Library, Playwright, and Vercel deployment remain planned. The Neon Free PostgreSQL schema is migrated, but no hosted application is configured to use it.
+The UI, validation/business rules, and Prisma data access live in separate layers. Server Actions handle form mutations; the Auth.js Route Handler is the explicit HTTP endpoint. Protected reads and writes recheck the current user and role on the server. [Architecture details](docs/ARCHITECTURE.md) · [Database design](docs/DATABASE.md) · [Interface contracts](docs/API.md)
 
-## Local setup
+## Engineering controls
 
-After cloning, use Node.js 24 LTS (see `.nvmrc`) and run `npm ci`. Copy `.env.example` to an ignored `.env`; choose local PostgreSQL credentials, a matching `DATABASE_URL`, a long random `NEXTAUTH_SECRET`, and `NEXTAUTH_URL=http://localhost:3000`. Run `docker compose up -d db` and wait for **healthy** in `docker compose ps`. Run `npm run db:deploy` to apply the checked-in migrations to a fresh database, then `npm run db:generate`. Follow [development admin provisioning](docs/SECURITY.md#development-admin-provisioning) to create a local ADMIN; no default account exists. Start with `npm run dev`, which regenerates Prisma Client before `next dev`, and sign in at `/admin/login`. Stop PostgreSQL with `docker compose down` to keep its named volume. Use `npm run db:migrate -- --name change_name` only when authoring a new development migration.
+- **Authentication and authorization:** Credentials-based Auth.js sessions use bcrypt-hashed passwords. Protected requests check the current `ACTIVE` User row, so disabling an account blocks new protected work even if its session cookie has not expired. STAFF cannot invoke ADMIN-only operations through direct requests. Public responses omit internal Lead fields and notes.
+- **Validation and abuse resistance:** Zod validates untrusted input on the server. The public form has length limits, a honeypot, generic errors, and duplicate-click prevention. Login and enquiry attempts use atomic PostgreSQL rate-limit buckets. Baseline security headers and a partial CSP are configured; edge controls, a full CSP, and hosted cookie/cache checks remain release work.
+- **Data integrity:** Prisma migrations define Users, Services, Leads, LeadNotes, Testimonials, singleton SiteSettings, and rate-limit buckets. Unique email/slug constraints, query indexes, publication checks, and restrictive foreign keys support the workflows without deleting historical Leads.
+- **Verification:** Vitest covers domain rules and database integration; database tests roll back records or use a disposable database. GitHub Actions runs against its own PostgreSQL service and checks migrations, Prisma Client generation, lint, types, all tests, and build. It does not deploy or receive Neon credentials. React Testing Library and Playwright suites are planned, not installed.
 
-Visitors can browse published Services at `/services`, open `/services/[slug]`, and try the quote workflow with that Service preselected. They can also submit a general demo enquiry at `/contact#request-quote` without an account. The page asks for fictional details and explains that no business follow-up occurs; real client acquisition is outside this initial launch. A selected Service must be published when the enquiry is submitted. Run `$env:RUN_DATABASE_TESTS = '1'; npm test` in PowerShell to include rollback-based PostgreSQL tests.
+The implemented stack is **Next.js App Router, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, Auth.js/NextAuth.js, bcryptjs, Vitest, Docker Compose, and GitHub Actions**. Neon Free is prepared for a fictional hosted demo. Vercel remains a pending hosting choice; React Hook Form, React Testing Library, and Playwright are approved future additions.
 
-Signed-in ADMIN and STAFF can open `/admin/leads`, search by name/email/company, filter by status or service, and view lead details. Both roles can change status and add internal notes; only ADMIN can assign or clear an assignee. The current workflow shows all leads to both roles and allows any of the five statuses to replace another; narrower visibility and transition rules need product review before production.
+## Run locally
 
-After the first local ADMIN is provisioned, an active ADMIN can use `/admin/users` to create ADMIN or STAFF accounts, edit name/email/role, and disable or reactivate accounts. New passwords are hashed; the management UI does not change existing passwords. Disabled accounts cannot sign in or use protected routes/actions, including with an already-issued JWT. Only active accounts can receive new Lead assignments. Historical assignments and notes remain attached to disabled accounts. Self-disablement and self-demotion are blocked.
+Use Node.js 24 LTS (`.nvmrc`), npm, and Docker Compose. No default ADMIN or sample Service is seeded.
 
-Both roles can view `/admin` analytics for all stored Leads under that same visibility policy. Total and status cards count current Lead records; “Leads This Month” counts creation in the current UTC calendar month. The six-month activity view includes zero-count months. The Service ranking counts linked enquiries, including historical links to unpublished Services. These are operational enquiry counts, not revenue or confirmed sales. Signed-in browser verification of the dashboard remains open.
+1. Run `npm ci` and copy `.env.example` to an ignored `.env`. Set local-only `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_PORT`, and matching `DATABASE_URL`; also set `NEXTAUTH_SECRET` and `NEXTAUTH_URL=http://localhost:3000`. Do not commit credentials or use the Neon URL for ordinary local commands.
+2. Run `docker compose up -d db` and wait for the database to become healthy.
+3. Run `npm run db:deploy` to apply the checked-in migrations, then `npm run db:generate`.
+4. Run `npm run dev` and open `http://localhost:3000`. The `predev` lifecycle also regenerates Prisma Client. To test the private workspace, follow the explicit [development ADMIN provisioning procedure](docs/SECURITY.md#development-admin-provisioning), then sign in at `/admin/login`.
+5. Run `docker compose down` when finished; this keeps the named database volume. Do not use `down -v` unless you intend to erase local data.
 
-ADMIN can create drafts at `/admin/services/new`, edit existing Services, and publish or unpublish them at `/admin/services`. STAFF cannot access these pages or actions. Slugs are editable and unique; changing a published slug changes its URL without creating a redirect. Unpublishing preserves historical Leads and their Service association. No Services are seeded automatically.
+Run `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build` for the standard checks. With a migrated **local** PostgreSQL database, set `RUN_DATABASE_TESTS=1` before `npm test` to include database integration and disposable-database CLI tests. See [Testing](docs/TESTING.md) for the exact coverage and browser-verification gaps.
 
-ADMIN can manage fictional sample testimonials at `/admin/testimonials` and business name, email, phone, and address at `/admin/settings`. Published testimonials appear on the homepage with an explicit portfolio-example label; drafts stay private. Saved settings provide the public brand and contact details. When no settings row exists, the public site uses the NexaService name and omits contact details rather than showing invented information. Settings are created only through an ADMIN save. No testimonials or settings are seeded automatically.
+## Repository map
 
-Local checks: `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build`. Set `RUN_DATABASE_TESTS=1` for the Vitest database suite (PowerShell: `$env:RUN_DATABASE_TESTS = '1'; npm test`). The ignored Neon URL is stored in `.env.neon.local`, which Next.js does not auto-load; ordinary local builds use the localhost `DATABASE_URL` in `.env`. Supply the Neon URL only for an explicit approved Neon operation. CI runs checks against its own PostgreSQL service after `npm run db:deploy`; it does not provision a production database or administrator.
+```text
+src/app/(public)/           Public pages and enquiry action
+src/app/admin/              Login and protected dashboard routes
+src/features/               Validation and business workflows
+src/server/auth/            Credentials and server-side authorization
+src/server/db/              Prisma client and repositories
+src/components/             Public and dashboard presentation
+prisma/                    Schema and checked-in SQL migrations
+scripts/                   Explicit ADMIN provisioning/recovery CLIs
+tests/                     Unit and PostgreSQL integration tests
+.github/workflows/ci.yml   Verification-only GitHub Actions workflow
+docs/                      Requirements, decisions, release plan, and evidence
+```
 
-Approved one-time production ADMIN bootstrap and password-recovery commands are implemented, but neither has run against Neon. They require temporary environment inputs, `NODE_ENV=production`, and explicit confirmation flags. Their disposable PostgreSQL integration test passes locally. See the [controlled release sequence](docs/DEPLOYMENT.md#controlled-production-release-sequence--migration-complete-deployment-pending); never use the development-only admin commands for production.
+## Screenshots and evidence
 
-## Documentation
+Screenshots have **not** been captured. [SCREENSHOTS.md](docs/SCREENSHOTS.md) lists the local, fictional-data views to capture and what each should prove. The [case study](docs/CASE_STUDY.md) explains engineering choices, debugging lessons, tradeoffs, and planned improvements. The [Definition of Done](docs/DEFINITION_OF_DONE.md) distinguishes implemented work from unverified release work.
 
-- [Product requirements](docs/PRODUCT_REQUIREMENTS.md): users, scope, stories, and acceptance criteria
-- [Architecture](docs/ARCHITECTURE.md): boundaries, flows, and proposed structure
-- [Database](docs/DATABASE.md): conceptual entities and constraints
-- [Application interfaces](docs/API.md): operations and error conventions
-- [Task plan](docs/TASKS.md): phases, dependencies, and completion checks
-- [Architecture decisions](docs/DECISIONS.md): approved ADRs
-- [Testing](docs/TESTING.md): current and planned coverage
-- [Security](docs/SECURITY.md): security requirements
-- [Deployment](docs/DEPLOYMENT.md): planned local and production workflow
+| Project documentation | Purpose |
+| --- | --- |
+| [Product requirements](docs/PRODUCT_REQUIREMENTS.md) | Scope, users, stories, and acceptance criteria |
+| [Architecture](docs/ARCHITECTURE.md) | Application boundaries and request flows |
+| [Database](docs/DATABASE.md) | Models, relations, constraints, and indexes |
+| [Interfaces](docs/API.md) | Public and protected operations and validation |
+| [Tasks](docs/TASKS.md) | Implementation checkpoints and pending tasks |
+| [Decisions](docs/DECISIONS.md) | Approved ADRs and later decisions |
+| [Testing](docs/TESTING.md) | Automated coverage and manual verification gaps |
+| [Security](docs/SECURITY.md) | Implemented controls and remaining risks |
+| [Deployment](docs/DEPLOYMENT.md) | Local setup, Neon, release sequence, and rollback |
 
-The documentation distinguishes implemented code from features and infrastructure that still need verification.
+The demo must not be used as a genuine customer-enquiry channel without a separate product, privacy, retention, and hosting decision.

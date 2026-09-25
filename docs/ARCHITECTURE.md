@@ -6,7 +6,23 @@ The public site and responsive dashboard are implemented. The database foundatio
 
 ## System overview and approved stack
 
-NexaService is one Next.js App Router full-stack application. React and Tailwind CSS provide the UI; TypeScript is used across application code. Auth.js handles staff authentication, Zod validates inputs, current forms use React action state, and server-side business logic uses Prisma to access PostgreSQL. Vitest runs current tests. GitHub Actions CI passed its first `main` run with clean-database migrations and quality checks; Task #15's local changes have not run remotely. React Hook Form, React Testing Library, Playwright, and Vercel deployment remain approved for later work. The Neon Free project for fictional data is reachable and has all three checked-in migrations; no hosted application is configured to use it yet. Docker Compose defines local PostgreSQL. There is no separate Express backend.
+NexaService is one Next.js App Router full-stack application. React and Tailwind CSS provide the UI; TypeScript is used across application code. Auth.js handles staff authentication, Zod validates inputs, current forms use React action state, and server-side business logic uses Prisma to access PostgreSQL. Vitest runs current tests. GitHub Actions CI passed its first `main` run with clean-database migrations and quality checks; This documentation branch still needs its own remote CI run. React Hook Form, React Testing Library, Playwright, and Vercel deployment remain approved for later work. The Neon Free project for fictional data is reachable and has all three checked-in migrations; no hosted application is configured to use it yet. Docker Compose defines local PostgreSQL. There is no separate Express backend.
+
+## Runtime and verification topology
+
+```mermaid
+flowchart TD
+    Browser --> Next[Next.js App Router]
+    Next --> Server[Server Actions, Auth.js, business logic]
+    Server --> Repositories[Server-only Prisma repositories]
+    Repositories --> Database[(PostgreSQL)]
+    Database --- Local[Local: Docker Compose]
+    Database --- Demo[Hosted demo: Neon Free, schema migrated]
+    GitHub --> CI[GitHub Actions: migration and quality gates]
+    CI -. deployment requires approval .-> Host[Vercel planned; not deployed]
+```
+
+The diagram shows alternative database environments, not simultaneous writes to two databases. CI starts its own disposable PostgreSQL service; it has no Neon credentials and does not deploy. A hosted Next.js application and its Neon runtime connection remain pending written hosting approval, production ADMIN approval, and release checks.
 
 ## Public and private boundaries
 
