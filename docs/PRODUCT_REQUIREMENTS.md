@@ -4,6 +4,8 @@
 
 A service business needs a credible public presence that converts interest into actionable enquiries. Staff need one private place to review and progress those leads without exposing customer information. NexaService demonstrates that complete workflow as a manageable portfolio project. Its approved fictional positioning is a modern commercial workplace and facility services company, broad enough for maintenance, inspections, cleaning or service coordination, and general operational support. The initial service catalogue and final production copy remain pending.
 
+For the initial public portfolio launch, NexaService remains a fictional demo. The public enquiry form stays functional for demonstration and smoke testing, but asks for fictional details and states that no business will respond. Genuine client acquisition is a separate future decision; the Neon Free trial database is intended for disposable demo records only.
+
 ## Target users
 
 | User | Need |

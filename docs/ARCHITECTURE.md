@@ -6,7 +6,7 @@ The public site and responsive dashboard are implemented. The database foundatio
 
 ## System overview and approved stack
 
-NexaService is one Next.js App Router full-stack application. React and Tailwind CSS provide the UI; TypeScript is used across application code. Auth.js handles staff authentication, Zod validates inputs, current forms use React action state, and server-side business logic uses Prisma to access PostgreSQL. Vitest runs current tests. GitHub Actions CI is configured for clean-database migration and quality checks, but remote execution is not yet verified. React Hook Form, React Testing Library, Playwright, Vercel, and hosted PostgreSQL remain approved for later work. Docker Compose defines local PostgreSQL. There is no separate Express backend.
+NexaService is one Next.js App Router full-stack application. React and Tailwind CSS provide the UI; TypeScript is used across application code. Auth.js handles staff authentication, Zod validates inputs, current forms use React action state, and server-side business logic uses Prisma to access PostgreSQL. Vitest runs current tests. GitHub Actions CI passed its first `main` run with clean-database migrations and quality checks; Task #15's local changes have not run remotely. React Hook Form, React Testing Library, Playwright, and Vercel deployment remain approved for later work. The Neon Free project for fictional data is reachable and has all three checked-in migrations; no hosted application is configured to use it yet. Docker Compose defines local PostgreSQL. There is no separate Express backend.
 
 ## Public and private boundaries
 
@@ -73,6 +73,8 @@ src/server/db/repositories/lead-management.ts  selected lead reads and writes
 src/app/admin/(protected)/leads/    lead list, detail, and Server Actions
 src/components/dashboard/          dashboard UI, lead forms, and login/logout controls
 scripts/provision-admin.ts         explicit development administrator creation
+scripts/bootstrap-production-admin.ts  explicit one-time production ADMIN creation; never runs at startup
+scripts/recover-production-admin-password.ts  explicit existing production ADMIN password recovery
 prisma/                            schema and migrations
 tests/auth/, tests/enquiry/, tests/leads/, tests/services/, tests/website-content/  current workflow tests
 ```

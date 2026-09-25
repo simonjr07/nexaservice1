@@ -8,13 +8,13 @@ export async function generateMetadata(): Promise<Metadata> {
   await connection();
   const { businessName } = await getPublicSettings();
   return {
-    title: { absolute: `${businessName} | Workplace services, handled well`, template: `%s | ${businessName}` },
-    description: `${businessName} offers practical care and clear coordination for commercial workplaces and facilities.`,
+    title: { absolute: `${businessName} | Fictional workplace services demo`, template: `%s | ${businessName}` },
+    description: `${businessName} is a fictional portfolio demo of a commercial workplace services website and staff dashboard.`,
     openGraph: {
       type: "website",
       siteName: businessName,
-      title: `${businessName} | Workplace services, handled well`,
-      description: "Practical care and clear coordination for commercial workplaces and facilities.",
+      title: `${businessName} | Fictional workplace services demo`,
+      description: "A fictional portfolio demo of a commercial workplace services website and staff dashboard.",
     },
     twitter: { card: "summary_large_image" },
   };
@@ -29,6 +29,9 @@ export default async function PublicLayout({ children }: { children: React.React
         Skip to content
       </a>
       <SiteHeader businessName={settings.businessName} />
+      <p className="border-b border-line bg-[#eaf0e8] px-5 py-2 text-center text-xs leading-5 text-ink sm:px-8">
+        Fictional portfolio demo. No real services are offered; use fictional details for enquiries.
+      </p>
       <main id="main-content" className="flex-1">{children}</main>
       <SiteFooter settings={settings} />
     </div>

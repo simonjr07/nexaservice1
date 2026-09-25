@@ -41,7 +41,7 @@ export function EnquiryForm({ services, initialServiceId = "", businessName = "N
       <div role="status" className="rounded-3xl border border-[#d7e4d2] bg-[#eaf0e8] p-8 sm:p-10">
         <span aria-hidden="true" className="grid h-12 w-12 place-items-center rounded-full bg-sea text-xl text-white">✓</span>
         <h3 className="mt-6 text-2xl font-semibold tracking-[-0.04em]">Enquiry received.</h3>
-        <p className="mt-3 text-sm leading-7 text-muted">Thanks for sharing the details. {businessName} can use them to follow up about your workplace request.</p>
+        <p className="mt-3 text-sm leading-7 text-muted">Your fictional enquiry was saved in the {businessName} demo workspace. No business follow-up will occur.</p>
         <a href="/contact#request-quote" className="mt-6 inline-block text-sm font-semibold text-sea underline-offset-4 hover:underline">Send another enquiry ↗</a>
       </div>
     );
@@ -83,7 +83,7 @@ export function EnquiryForm({ services, initialServiceId = "", businessName = "N
         </div>
         <div>
           <label htmlFor="enquiry-message" className="block text-sm font-semibold">How can we help? <span aria-hidden="true" className="text-sea">*</span></label>
-          <textarea id="enquiry-message" name="message" rows={6} required minLength={10} maxLength={3000} value={values.message} onChange={(event) => setField("message", event.target.value)} placeholder="Tell us about your workplace, a facility issue, or the support you need." aria-invalid={!!errors.message} aria-describedby={errors.message ? "enquiry-message-error" : undefined} className={inputClass} />
+          <textarea id="enquiry-message" name="message" rows={6} required minLength={10} maxLength={3000} value={values.message} onChange={(event) => setField("message", event.target.value)} placeholder="Describe a fictional workplace request for this demo." aria-invalid={!!errors.message} aria-describedby={errors.message ? "enquiry-message-error" : undefined} className={inputClass} />
           {errors.message && <p id="enquiry-message-error" className="mt-2 text-sm text-red-800">{errors.message}</p>}
         </div>
         <div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden">
@@ -98,7 +98,7 @@ export function EnquiryForm({ services, initialServiceId = "", businessName = "N
         {pending ? "Sending enquiry…" : "Send enquiry ↗"}
       </button>
       {pending && <span role="status" className="sr-only">Sending your enquiry.</span>}
-      <p className="text-xs leading-5 text-muted">Fields marked * are required. Please do not include sensitive personal information.</p>
+      <p className="text-xs leading-5 text-muted">Fields marked * are required. Use fictional details only; do not include real contact or sensitive personal information.</p>
     </form>
   );
 }
