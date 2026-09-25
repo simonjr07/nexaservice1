@@ -1,6 +1,13 @@
 # NexaService engineering instructions
 
-The root README and `docs/` are this project's source of truth. Before implementing a feature, read the relevant product, architecture, database, interface, task, decision, testing, security, and deployment documents. Treat pending decisions as pending; ask the human decision-maker before work that depends on them.
+The root README and `docs/` are this project's source of truth. Before implementing a feature, read the relevant product, architecture, database, interface, task, decision, testing, security, and deployment documents. Treat pending decisions as pending; ask the human decision-maker only when work depends on them.
+
+## Autonomy and approvals
+
+- Decide routine technical details within an approved task independently. Reuse project conventions, prefer the simplest production-appropriate solution, and document significant decisions. Do not repeat questions already answered.
+- You may implement approved work, fix ordinary bugs, inspect development logs, run checks, generate Prisma Client, update documentation, perform non-destructive local verification, and fix CI failures within the approved scope.
+- Stop for credentials the human must supply; purchases or paid resources; a production hosting or database provider change; destructive database operations; production data changes outside an explicitly approved operation; production ADMIN creation or recovery; production deployment without prior authorization; major architecture changes; or meaningful financial or security implications.
+- When human input is necessary, ask one clear question with options and their consequences. Follow the current approvals and launch constraints in `docs/DECISIONS.md` and `docs/DEPLOYMENT.md`.
 
 ## Scope and architecture
 

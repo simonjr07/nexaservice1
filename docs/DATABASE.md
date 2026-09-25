@@ -1,6 +1,6 @@
 # Database design and status
 
-The PostgreSQL schema is defined in `prisma/schema.prisma`. Prisma 7.10.0 validation and Client generation pass. The initial, account-status, and additive request-rate-limit migrations are applied locally; `npx prisma migrate status` reports the schema up to date. The account-status migration leaves existing Users active. The limiter migration adds one operational table without changing business records or Lead foreign keys. Docker CLI/container health has not been independently inspected here.
+The PostgreSQL schema is defined in `prisma/schema.prisma`. Prisma 7.10.0 validation and Client generation pass. The initial, account-status, and additive request-rate-limit migrations are applied locally and on the approved Neon Free demo database; Prisma migration status reports both schemas up to date. The Neon migration used a direct TLS endpoint and was verified read-only afterward. The account-status migration leaves existing Users active. The limiter migration adds one operational table without changing business records or Lead foreign keys. Docker CLI/container health has not been independently inspected here.
 
 ## Implemented models
 
